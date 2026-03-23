@@ -1,0 +1,57 @@
+---
+/**
+ * Schützt E-Mail-Adressen und Telefonnummern vor Bots.
+ * Wert wird Base64-kodiert im HTML gespeichert, der echte Link
+ * wird erst client-seitig per JS zusammengesetzt.
+ *
+ * Props:
+ *   email   – E-Mail-Adresse
+ *   tel     – Telefonnummer
+ *   label   – Optionaler Linktext (sonst wird der Wert selbst angezeigt)
+ *   extra   – Optionaler Anhang an die href, z.B. '?subject=Sponsoring'
+ *   class   – CSS-Klassen für das erzeugte <a>-Element
+ */
+interface Props {
+  email?: string
+  tel?: string
+  label?: string
+  extra?: string
+  class?: string
+}
+
+const { email, tel, label, extra = '', class: cls } = Astro.props
+const value = email ?? tel ?? ''
+const type  = email ? 'email' : 'tel'
+
+const enc  = (s: string) => Buffer.from(s).toString('base64')
+---
+
+<span
+  class:list={['_obf', cls]}
+  data-v={enc(value)}
+  data-t={type}
+  data-x={extra ? enc(extra) : undefined}
+  data-l={label ? enc(label) : undefined}
+  aria-hidden="true"
+></span>
+<noscript>
+  <span class={cls}>[Bitte JavaScript aktivieren]</span>
+</noscript>
+
+<script>
+  document.querySelectorAll<HTMLElement>('._obf').forEach(el => {
+    const raw  = el.dataset.v
+    const type = el.dataset.t
+    if (!raw) return
+
+    const v = atob(raw)
+    const l = el.dataset.l ? atob(el.dataset.l) : v
+    const x = el.dataset.x ? atob(el.dataset.x) : ''
+
+    const a = document.createElement('a')
+    a.href      = (type === 'email' ? `mailto:${v}` : `tel:${v.replace(/\s/g, '')}`) + x
+    a.textContent = l
+    a.className = [...el.classList].filter(c => c !== '_obf').join(' ')
+    el.replaceWith(a)
+  })
+</script>

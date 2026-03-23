@@ -1,0 +1,48 @@
+gruppen:
+  - name: Vogelrieder Getränke
+    klasse: premium
+    firmen:
+      - name: Voglrieder Getränke GmbH
+        branche: Hauptsponsor
+        logo: /images/sponsoren/gruppen/0/firmen/0/logo.jpg
+  - name: Goldsponsoren
+    klasse: gold
+    firmen:
+      - name: Sponsor A
+        branche: Beispielbranche
+      - name: Sponsor B
+        branche: Beispielbranche
+  - name: Partner
+    klasse: partner
+    firmen:
+      - name: Partner A
+        branche: Lokales Unternehmen
+      - name: Partner B
+        branche: Lokales Unternehmen
+      - name: Partner C
+        branche: Lokales Unternehmen
+pakete:
+  - name: Partner
+    klasse: partner
+    preis: ab 250 €
+    leistungen:
+      - punkt: Logo auf Website
+      - punkt: Nennung in Vereinsnews
+      - punkt: Social-Media-Erwähnung
+  - name: Gold
+    klasse: gold
+    preis: ab 750 €
+    leistungen:
+      - punkt: Alles aus Partner
+      - punkt: Banner am Sportplatz
+      - punkt: Logo auf Spielerpass-Heft
+      - punkt: Präsenz bei Heimspielen
+  - name: Hauptsponsor
+    klasse: premium
+    preis: ab 2.000 €
+    leistungen:
+      - punkt: Alles aus Gold
+      - punkt: Trikot-Branding (1 Mannschaft)
+      - punkt: Prominent auf Startseite
+      - punkt: VIP-Einladungen zu Spielen
+      - punkt: Individuelle Vereinbarung

@@ -1,0 +1,261 @@
+---
+import Base from '../../layouts/Base.astro'
+import { createReader } from '@keystatic/core/reader'
+import keystaticConfig from '../../../keystatic.config'
+
+const reader = createReader(process.cwd(), keystaticConfig)
+const allNews = await reader.collections.news.all()
+
+// Sortiere nach Datum absteigend
+const news = allNews
+  .filter(n => n.entry.datum)
+  .sort((a, b) => (b.entry.datum ?? '').localeCompare(a.entry.datum ?? ''))
+
+const katLabels: Record<string, string> = {
+  spielbericht: 'Spielbericht',
+  jugend:       'Jugend',
+  verein:       'Vereinsnews',
+}
+
+function formatDate(iso: string | null) {
+  if (!iso) return ''
+  const d = new Date(iso)
+  return d.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
+}
+
+const featured = news.filter(n => n.entry.featured)
+const rest     = news.filter(n => !n.entry.featured)
+---
+
+<Base title="News & Berichte" description="Aktuelle Neuigkeiten, Spielberichte und Vereinsinformationen der SpVgg Höhenkirchen.">
+
+  <div class="page-hero">
+    <div class="container">
+      <p class="section-eyebrow">Aktuelles</p>
+      <h1 class="page-title">News & <span>Berichte</span></h1>
+      <p class="page-sub">Spielberichte, Vereinsnews und Jugendinfos.</p>
+    </div>
+  </div>
+
+  <section class="news-section">
+    <div class="container">
+
+      {featured.length > 0 && (
+        <div class="featured-wrap">
+          {featured.map(n => (
+            <a href={`/news/${n.slug}`} class="card-featured">
+              <div class="card-img">
+                {n.entry.titelbild
+                  ? <img src={n.entry.titelbild} alt={n.entry.titel} />
+                  : <span class="card-img-icon">⚽</span>
+                }
+                <div class="card-img-bar"></div>
+                <span class="card-badge">{katLabels[n.entry.kategorie] ?? n.entry.kategorie}</span>
+              </div>
+              <div class="card-body">
+                <div class="card-meta">
+                  <time datetime={n.entry.datum ?? ''}>{formatDate(n.entry.datum)}</time>
+                  {n.entry.autor && <span>— {n.entry.autor}</span>}
+                </div>
+                <h2 class="card-title">{n.entry.titel}</h2>
+                <span class="card-cta">Weiterlesen →</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
+
+      <div class="news-list">
+        {rest.map(n => (
+          <a href={`/news/${n.slug}`} class="card-list">
+            <div class="card-list-dot"></div>
+            <div class="card-list-body">
+              <div class="card-list-meta">
+                <span class="card-kat">{katLabels[n.entry.kategorie] ?? n.entry.kategorie}</span>
+                <time datetime={n.entry.datum ?? ''}>{formatDate(n.entry.datum)}</time>
+              </div>
+              <h3 class="card-list-title">{n.entry.titel}</h3>
+              {n.entry.autor && <span class="card-list-autor">{n.entry.autor}</span>}
+            </div>
+            <span class="card-list-arrow">→</span>
+          </a>
+        ))}
+        {news.length === 0 && (
+          <p class="empty">Noch keine Artikel vorhanden.</p>
+        )}
+      </div>
+
+    </div>
+  </section>
+
+</Base>
+
+<style>
+  .page-hero {
+    background: var(--color-black);
+    border-bottom: 1px solid var(--color-border);
+    padding: 7rem 0 3rem;
+  }
+  .page-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: clamp(3rem, 8vw, 6rem);
+    text-transform: uppercase;
+    line-height: 1;
+    letter-spacing: 1px;
+    margin-bottom: 0.75rem;
+  }
+  .page-title span { color: var(--color-red); }
+  .page-sub { font-size: 1rem; font-weight: 300; color: var(--color-muted); }
+
+  .news-section { padding: 3.5rem 0 5rem; background: var(--color-black); }
+
+  /* Featured */
+  .featured-wrap { margin-bottom: 2.5rem; }
+  .card-featured {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s;
+  }
+  .card-featured:hover { border-color: var(--color-red); }
+  .card-img {
+    aspect-ratio: 16 / 9;
+    background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .card-img img { width: 100%; height: 100%; object-fit: cover; }
+  .card-img-icon { font-size: 4rem; opacity: 0.1; }
+  .card-img-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--color-red);
+  }
+  .card-badge {
+    position: absolute;
+    top: 1rem; left: 1rem;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.90rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    background: var(--color-red);
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 2px;
+  }
+  .card-body {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+  .card-meta {
+    font-size: 0.90rem;
+    color: var(--color-muted);
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .card-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 1.6rem;
+    text-transform: uppercase;
+    line-height: 1.15;
+    letter-spacing: 0.5px;
+  }
+  .card-cta {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--color-red);
+    margin-top: 0.5rem;
+  }
+
+  /* List items */
+  .news-list { display: flex; flex-direction: column; gap: 1px; }
+  .card-list {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.1rem 1.25rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 2px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s;
+  }
+  .card-list:hover { border-color: var(--color-red); }
+  .card-list-dot {
+    width: 3px;
+    height: 100%;
+    min-height: 40px;
+    background: var(--color-red);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .card-list-body { flex: 1; }
+  .card-list-meta {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 0.3rem;
+    flex-wrap: wrap;
+  }
+  .card-kat {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.86rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--color-text);
+    background: rgba(200,16,46,0.15);
+    border: 1px solid rgba(200,16,46,0.25);
+    padding: 2px 8px;
+    border-radius: 2px;
+  }
+  time { font-size: 0.86rem; color: var(--color-muted); }
+  .card-list-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1.2;
+  }
+  .card-list-autor {
+    font-size: 0.86rem;
+    color: var(--color-muted);
+    margin-top: 0.2rem;
+    display: block;
+  }
+  .card-list-arrow {
+    font-size: 1.1rem;
+    color: var(--color-border);
+    flex-shrink: 0;
+    transition: color 0.2s;
+  }
+  .card-list:hover .card-list-arrow { color: var(--color-red); }
+
+  .empty { color: var(--color-muted); font-size: 1rem; }
+
+  @media (max-width: 700px) {
+    .card-featured { grid-template-columns: 1fr; }
+    .card-img { aspect-ratio: 16/7; }
+  }
+</style>

@@ -1,0 +1,378 @@
+---
+import Base from '../layouts/Base.astro'
+import Obfuscate from '../components/Obfuscate.astro'
+import { createReader } from '@keystatic/core/reader'
+import keystaticConfig from '../../keystatic.config'
+
+const reader = createReader(process.cwd(), keystaticConfig)
+const data = await reader.singletons.sponsoren.read()
+const sponsoren = data?.gruppen ?? []
+const pakete    = data?.pakete ?? []
+
+const ap = await reader.singletons.ansprechpartner.read()
+const personen = ap?.personen ?? []
+const zorlu     = personen.find(p => p.funktion.toLowerCase().includes('werbung') || p.funktion.toLowerCase().includes('sponsor'))
+const fanshop   = personen.find(p => p.funktion.toLowerCase().includes('bekleidung') || p.funktion.toLowerCase().includes('fanshop'))
+const emailSponsoring = zorlu?.email   ?? 's.zorlu@fussball-hoehenkirchen.de'
+const emailFanshop    = fanshop?.email ?? 'm.reisnecker@fussball-hoehenkirchen.de'
+---
+
+<Base title="Sponsoren & Partner" description="Unsere Sponsoren und Partner — gemeinsam für die SpVgg Höhenkirchen.">
+
+  <div class="page-hero">
+    <div class="container">
+      <p class="section-eyebrow">Gemeinschaft</p>
+      <h1 class="page-title">Sponsoren & <span>Partner</span></h1>
+      <p class="page-sub">Gemeinsam stark — unsere Unterstützer machen Vereinsfußball möglich.</p>
+    </div>
+  </div>
+
+  <!-- Sponsor werden CTA -->
+  <section class="cta-section">
+    <div class="container cta-inner">
+      <div class="cta-text">
+        <h2 class="cta-title">Werden Sie Sponsor</h2>
+        <p>Unterstützen Sie den Nachwuchsfußball im Landkreis München und präsentieren Sie Ihr Unternehmen auf unserer Website, Trikots und bei unseren Veranstaltungen.</p>
+      </div>
+      <Obfuscate email={emailSponsoring} extra="?subject=Sponsoring%20SpVgg%20H%C3%B6henkirchen" label="Jetzt anfragen →" class="btn-primary cta-btn" />
+    </div>
+  </section>
+
+  <!-- Aktuelle Sponsoren -->
+  <section class="sponsoren-section">
+    <div class="container">
+      <p class="section-eyebrow">Unsere Unterstützer</p>
+      <h2 class="section-title">Danke an unsere <span class="red">Sponsoren</span></h2>
+
+      {sponsoren.map(gruppe => (
+        <div class="sponsor-gruppe">
+          <h3 class="gruppe-label">{gruppe.name}</h3>
+          <div class:list={['sponsor-grid', `sponsor-grid--${gruppe.klasse}`]}>
+            {gruppe.firmen.map(f => (
+              <div class:list={['sponsor-card', `sponsor-card--${gruppe.klasse}`]}>
+                {f.logo
+                  ? <img src={f.logo} alt={f.name} class="sponsor-logo-img" />
+                  : <div class="sponsor-logo-placeholder">
+                      {f.name.split(' ').map((w: string) => w[0]).join('').slice(0,3)}
+                    </div>
+                }
+                <div class="sponsor-info">
+                  {f.website
+                    ? <a href={f.website} target="_blank" rel="noopener" class="sponsor-name sponsor-name--link">{f.name}</a>
+                    : <div class="sponsor-name">{f.name}</div>
+                  }
+                  <div class="sponsor-branche">{f.branche}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Sponsoren-Pakete -->
+  <section class="pakete-section">
+    <div class="container">
+      <p class="section-eyebrow">Sponsoring</p>
+      <h2 class="section-title">Unsere <span class="red">Pakete</span></h2>
+
+      <div class="pakete-grid">
+        {pakete.map(p => (
+          <div class:list={['paket-card', `paket--${p.klasse}`]}>
+            <div class:list={['paket-badge', { 'paket-badge--premium': p.klasse === 'premium' }]}>{p.name}</div>
+            <div class="paket-price">{p.preis}<span>/Jahr</span></div>
+            <ul class="paket-list">
+              {p.leistungen.map(l => <li>{l.punkt}</li>)}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      <p class="pakete-hinweis">
+        Alle Preise sind Richtwerte. Individuelle Pakete nach Absprache möglich. Wende dich an
+        <Obfuscate email={emailSponsoring} label={`${zorlu?.name ?? 'Samet Zorlu'} (Werbung & Sponsoring)`} />.
+      </p>
+    </div>
+  </section>
+
+  <!-- Fanshop Teaser -->
+  <section class="fanshop-section">
+    <div class="container fanshop-inner">
+      <div class="fanshop-icon">👕</div>
+      <div class="fanshop-text">
+        <h2 class="fanshop-title">Fanshop — <span>demnächst</span></h2>
+        <p>Trikots, Schals und Fanartikeln der SpVgg Höhenkirchen — unser Fanshop ist in Kürze verfügbar. Bei Interesse an Teambekleidung wende dich an Margit Reisenecker.</p>
+        <Obfuscate email={emailFanshop} label={`→ ${emailFanshop}`} class="fanshop-link" />
+      </div>
+    </div>
+  </section>
+
+</Base>
+
+<style>
+  .page-hero {
+    background: var(--color-black);
+    border-bottom: 1px solid var(--color-border);
+    padding: 7rem 0 3rem;
+  }
+  .page-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: clamp(3rem, 8vw, 6rem);
+    text-transform: uppercase;
+    line-height: 1;
+    letter-spacing: 1px;
+    margin-bottom: 0.75rem;
+  }
+  .page-title span { color: var(--color-red); }
+  .page-sub { font-size: 1rem; font-weight: 300; color: var(--color-muted); }
+
+  /* CTA */
+  .cta-section {
+    background: var(--color-red);
+    padding: 2.5rem 0;
+  }
+  .cta-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+  .cta-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.4rem;
+    color: #fff;
+  }
+  .cta-text p {
+    font-size: 0.96rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.65;
+    max-width: 560px;
+  }
+  .cta-btn {
+    background: #fff !important;
+    color: var(--color-red) !important;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .cta-btn:hover { background: #f0f0f0 !important; }
+
+  /* Pakete */
+  .pakete-section {
+    padding: 5rem 0;
+    background: var(--color-surface);
+  }
+  .section-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 2.5rem;
+    margin-top: 0.5rem;
+  }
+  .red { color: var(--color-red); }
+
+  .pakete-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  .paket-card {
+    background: var(--color-black);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .paket--premium {
+    border-color: rgba(200,16,46,0.4);
+    position: relative;
+  }
+  .paket-badge {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    display: inline-block;
+  }
+  .paket-badge--premium { color: var(--color-red); }
+  .paket-price {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 2rem;
+    color: var(--color-text);
+    line-height: 1;
+  }
+  .paket-price span {
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--color-muted);
+  }
+  .paket-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+  }
+  .paket-list li {
+    font-size: 0.9rem;
+    font-weight: 300;
+    color: var(--color-muted);
+    padding-left: 1.1rem;
+    position: relative;
+    line-height: 1.5;
+  }
+  .paket-list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--color-red);
+    font-size: 0.78rem;
+    top: 2px;
+  }
+  .pakete-hinweis {
+    font-size: 0.9rem;
+    font-weight: 300;
+    color: var(--color-muted);
+    line-height: 1.65;
+  }
+  .pakete-hinweis a { color: var(--color-red); text-decoration: none; }
+  .pakete-hinweis a:hover { text-decoration: underline; }
+
+  /* Sponsoren Liste */
+  .sponsoren-section { padding: 5rem 0; background: var(--color-black); }
+  .sponsor-gruppe { margin-bottom: 3rem; }
+  .gruppe-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .sponsor-grid {
+    display: grid;
+    gap: 1rem;
+  }
+  .sponsor-grid--premium { grid-template-columns: 1fr; }
+  .sponsor-grid--gold { grid-template-columns: repeat(2, 1fr); }
+  .sponsor-grid--partner { grid-template-columns: repeat(3, 1fr); }
+
+  .sponsor-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    padding: 1.5rem;
+    display: flex;
+    gap: 1.25rem;
+    align-items: center;
+    transition: border-color 0.2s;
+  }
+  .sponsor-card:hover { border-color: var(--color-red); }
+  .sponsor-card--premium { padding: 2rem; }
+
+  .sponsor-logo-img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .sponsor-name--link { color: var(--color-text); text-decoration: none; }
+  .sponsor-name--link:hover { color: var(--color-red); }
+  .sponsor-logo-placeholder {
+    width: 64px;
+    height: 64px;
+    background: var(--color-border);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--color-muted);
+    flex-shrink: 0;
+  }
+  .sponsor-card--premium .sponsor-logo-placeholder {
+    width: 96px;
+    height: 96px;
+    font-size: 1.5rem;
+  }
+  .sponsor-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+  }
+  .sponsor-branche { font-size: 0.86rem; color: var(--color-muted); font-weight: 300; }
+
+  /* Fanshop */
+  .fanshop-section {
+    padding: 4rem 0;
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+  }
+  .fanshop-inner {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+  }
+  .fanshop-icon { font-size: 3.5rem; flex-shrink: 0; }
+  .fanshop-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 1.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.75rem;
+  }
+  .fanshop-title span { color: var(--color-red); }
+  .fanshop-text p {
+    font-size: 0.96rem;
+    font-weight: 300;
+    color: var(--color-muted);
+    line-height: 1.7;
+    margin-bottom: 0.75rem;
+  }
+  .fanshop-link {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--color-red);
+    text-decoration: none;
+  }
+  .fanshop-link:hover { text-decoration: underline; }
+
+  @media (max-width: 860px) {
+    .cta-inner { flex-direction: column; align-items: flex-start; }
+    .pakete-grid { grid-template-columns: 1fr; }
+    .sponsor-grid--gold,
+    .sponsor-grid--partner { grid-template-columns: 1fr 1fr; }
+    .fanshop-inner { flex-direction: column; }
+  }
+  @media (max-width: 500px) {
+    .sponsor-grid--partner { grid-template-columns: 1fr; }
+  }
+</style>

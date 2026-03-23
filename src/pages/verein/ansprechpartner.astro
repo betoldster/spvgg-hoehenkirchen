@@ -1,0 +1,217 @@
+---
+import Base from '../../layouts/Base.astro'
+import VereinNav from '../../components/VereinNav.astro'
+import Obfuscate from '../../components/Obfuscate.astro'
+import { createReader } from '@keystatic/core/reader'
+import keystaticConfig from '../../../keystatic.config'
+
+const reader = createReader(process.cwd(), keystaticConfig)
+const data = await reader.singletons.ansprechpartner.read()
+const personen = data?.personen ?? []
+const impressum = await reader.singletons.impressum.read()
+const allgemeineEmail = impressum?.email ?? 'info@fussball-hoehenkirchen.de'
+---
+
+<Base title="Ansprechpartner" description="Deine Ansprechpartner in der Fußballabteilung der SpVgg Höhenkirchen.">
+
+  <div class="page-hero">
+    <div class="container">
+      <p class="section-eyebrow">Kontakt</p>
+      <h1 class="page-title">Ansprech<span>partner</span></h1>
+      <p class="page-sub">Wir sind für dich da — schreib uns einfach an.</p>
+    </div>
+  </div>
+
+  <VereinNav active="/verein/ansprechpartner" />
+
+  <section class="ap-section">
+    <div class="container">
+
+      {personen.length === 0 ? (
+        <p class="empty">Keine Ansprechpartner hinterlegt.</p>
+      ) : (
+        <div class="ap-grid">
+          {personen.map(p => (
+            <div class="ap-card">
+              <div class="ap-avatar">
+                {p.foto
+                  ? <img src={p.foto} alt={p.name} />
+                  : <span class="ap-initials">
+                      {p.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
+                    </span>
+                }
+              </div>
+              <div class="ap-info">
+                <div class="ap-funktion">{p.funktion}</div>
+                <div class="ap-name">{p.name}</div>
+                <div class="ap-contacts">
+                  {p.email && (
+                    <span class="ap-link ap-link--email">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 7L2 7"/></svg>
+                      <Obfuscate email={p.email} />
+                    </span>
+                  )}
+                  {p.telefon && p.telefon !== '—' && p.telefon !== '' && (
+                    <span class="ap-link ap-link--phone">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13 19.79 19.79 0 0 1 1.61 4.41 2 2 0 0 1 3.59 2.25h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.06 6.06l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                      <Obfuscate tel={p.telefon} />
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div class="general-contact">
+        <div class="gc-icon">✉</div>
+        <div>
+          <div class="gc-title">Allgemeine Anfragen</div>
+          <p class="gc-text">Für allgemeine Fragen zur Fußballabteilung erreichst du uns unter:</p>
+          <Obfuscate email={allgemeineEmail} class="gc-email" />
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</Base>
+
+<style>
+  .page-hero {
+    background: var(--color-black);
+    border-bottom: 1px solid var(--color-border);
+    padding: 7rem 0 3rem;
+  }
+  .page-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: clamp(3rem, 8vw, 6rem);
+    text-transform: uppercase;
+    line-height: 1;
+    letter-spacing: 1px;
+    margin-bottom: 0.75rem;
+  }
+  .page-title span { color: var(--color-red); }
+  .page-sub { font-size: 1rem; font-weight: 300; color: var(--color-muted); }
+
+  .ap-section { padding: 4rem 0 5rem; background: var(--color-black); }
+  .empty { color: var(--color-muted); }
+
+  .ap-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-bottom: 3rem;
+  }
+  .ap-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    padding: 1.5rem;
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+    transition: border-color 0.2s;
+  }
+  .ap-card:hover { border-color: var(--color-red); }
+  .ap-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--color-black);
+    border: 2px solid var(--color-border);
+    flex-shrink: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ap-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .ap-initials {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: var(--color-red);
+    text-transform: uppercase;
+  }
+  .ap-info { flex: 1; min-width: 0; }
+  .ap-funktion {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--color-red);
+    margin-bottom: 0.3rem;
+  }
+  .ap-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 1.15rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.75rem;
+  }
+  .ap-contacts { display: flex; flex-direction: column; gap: 0.4rem; }
+  .ap-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.86rem;
+    color: var(--color-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .ap-link:hover { color: var(--color-red); }
+  .ap-link svg { flex-shrink: 0; }
+
+  /* General contact box */
+  .general-contact {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-left: 3px solid var(--color-red);
+    border-radius: 3px;
+    padding: 2rem;
+    margin-top: 1rem;
+  }
+  .gc-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+    opacity: 0.4;
+  }
+  .gc-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.4rem;
+  }
+  .gc-text {
+    font-size: 0.96rem;
+    font-weight: 300;
+    color: var(--color-muted);
+    margin-bottom: 0.6rem;
+  }
+  .gc-email {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--color-red);
+    text-decoration: none;
+  }
+  .gc-email:hover { text-decoration: underline; }
+
+  @media (max-width: 600px) {
+    .ap-grid { grid-template-columns: 1fr; }
+    .general-contact { flex-direction: column; gap: 1rem; }
+  }
+</style>

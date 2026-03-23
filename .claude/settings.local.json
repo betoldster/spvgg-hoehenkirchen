@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node:*)",
+      "Bash(curl -s http://localhost:4321/news/3-1-sieg-gegen-ottobrunn)",
+      "Bash(npx tsx:*)",
+      "Bash(curl -s http://localhost:4321/_debug)",
+      "Bash(curl -s http://localhost:4321/debug)",
+      "Bash(python3 -c \"import sys; d=sys.stdin.read\\(\\); print\\(d[d.find\\(''''<pre>''''\\)+5:d.find\\(''''</pre>''''\\)][:500]\\)\")",
+      "Bash(curl -s -o /dev/null -w \"/news/3-1-sieg-gegen-ottobrunn → %{http_code}\\\\n\" \"http://localhost:4321/news/3-1-sieg-gegen-ottobrunn\")",
+      "Bash(curl -s -o /dev/null -w \"/news/generalversammlung-2025 → %{http_code}\\\\n\" \"http://localhost:4321/news/generalversammlung-2025\")",
+      "Bash(curl -s -o /dev/null -w \"/mannschaften/senioren → %{http_code}\\\\n\" \"http://localhost:4321/mannschaften/senioren\")",
+      "Bash(curl -s -o /dev/null -w \"/ → %{http_code}\\\\n\" http://localhost:4321/)",
+      "Bash(curl -s -o /dev/null -w \"/mannschaften → %{http_code}\\\\n\" http://localhost:4321/mannschaften)",
+      "Bash(curl -s -o /dev/null -w \"/mannschaften/herren → %{http_code}\\\\n\" http://localhost:4321/mannschaften/herren)",
+      "Bash(curl -s -o /dev/null -w \"/mannschaften/junioren → %{http_code}\\\\n\" http://localhost:4321/mannschaften/junioren)",
+      "Bash(curl -s -o /dev/null -w \"/mannschaften/senioren → %{http_code}\\\\n\" http://localhost:4321/mannschaften/senioren)",
+      "Bash(curl -s -o /dev/null -w \"/logo.png → %{http_code}\\\\n\" http://localhost:4321/logo.png)",
+      "Bash(curl -s -o /dev/null -w \"/news → %{http_code}\\\\n\" http://localhost:4321/news)",
+      "Bash(curl -s -o /dev/null -w \"/spielplan → %{http_code}\\\\n\" http://localhost:4321/spielplan)",
+      "Bash(curl -s -o /dev/null -w \"/verein/ueber-uns → %{http_code}\\\\n\" http://localhost:4321/verein/ueber-uns)",
+      "Bash(curl -s -o /dev/null -w \"/verein/ansprechpartner → %{http_code}\\\\n\" http://localhost:4321/verein/ansprechpartner)",
+      "Bash(curl -s -o /dev/null -w \"/verein/training → %{http_code}\\\\n\" http://localhost:4321/verein/training)",
+      "Bash(curl -s -o /dev/null -w \"/verein/anfahrt → %{http_code}\\\\n\" http://localhost:4321/verein/anfahrt)",
+      "Bash(curl -s -o /dev/null -w \"/verein/beitraege → %{http_code}\\\\n\" http://localhost:4321/verein/beitraege)",
+      "Bash(curl -s -o /dev/null -w \"/mitmachen/mitgliedschaft → %{http_code}\\\\n\" http://localhost:4321/mitmachen/mitgliedschaft)",
+      "Bash(curl -s -o /dev/null -w \"/mitmachen/jugend → %{http_code}\\\\n\" http://localhost:4321/mitmachen/jugend)",
+      "Bash(curl -s -o /dev/null -w \"/mitmachen/bestaetigung → %{http_code}\\\\n\" http://localhost:4321/mitmachen/bestaetigung)",
+      "Bash(curl -s -o /dev/null -w \"/sponsoren → %{http_code}\\\\n\" http://localhost:4321/sponsoren)",
+      "Bash(curl -s -o /dev/null -w \"/impressum → %{http_code}\\\\n\" http://localhost:4321/impressum)",
+      "Bash(curl -s -o /dev/null -w \"/datenschutz → %{http_code}\\\\n\" http://localhost:4321/datenschutz)",
+      "Bash(curl:*)",
+      "Bash(npm install:*)",
+      "Bash(kill %1)"
+    ]
+  }
+}

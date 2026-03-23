@@ -1,0 +1,441 @@
+---
+import Base from '../../layouts/Base.astro'
+import MitmachenNav from '../../components/MitmachenNav.astro'
+import Obfuscate from '../../components/Obfuscate.astro'
+import { createReader } from '@keystatic/core/reader'
+import keystaticConfig from '../../../keystatic.config'
+
+const reader = createReader(process.cwd(), keystaticConfig)
+const beitraegeData = await reader.singletons.beitraege.read()
+const beitraegeGruppen = beitraegeData?.gruppen ?? []
+const impressum = await reader.singletons.impressum.read()
+const allgemeineEmail = impressum?.email ?? 'info@fussball-hoehenkirchen.de'
+---
+
+<Base title="Mitglied werden" description="Jetzt Mitglied der Fußballabteilung SpVgg Höhenkirchen werden — einfach online anmelden.">
+
+  <div class="page-hero">
+    <div class="container">
+      <p class="section-eyebrow">Mitmachen</p>
+      <h1 class="page-title">Mitglied <span>werden</span></h1>
+      <p class="page-sub">Werde Teil der SpVgg Höhenkirchen — in wenigen Schritten.</p>
+    </div>
+  </div>
+
+  <MitmachenNav active="/mitmachen/mitgliedschaft" />
+
+  <section class="form-section">
+    <div class="container form-layout">
+
+      <div class="form-col">
+        <div class="form-intro">
+          <h2 class="form-heading">Anmeldeformular</h2>
+          <p>Fülle das Formular aus. Wir melden uns innerhalb von 2–3 Werktagen mit allen weiteren Informationen (SEPA-Mandat, Willkommenspaket) bei dir.</p>
+        </div>
+
+        <form class="mitglied-form" name="mitgliedschaft" method="POST" action="/mitmachen/bestaetigung">
+          <input type="hidden" name="form-name" value="mitgliedschaft" />
+
+          <fieldset class="form-fieldset">
+            <legend class="fieldset-legend">Persönliche Daten</legend>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="vorname" class="form-label">Vorname *</label>
+                <input type="text" id="vorname" name="vorname" class="form-input" required autocomplete="given-name" />
+              </div>
+              <div class="form-group">
+                <label for="nachname" class="form-label">Nachname *</label>
+                <input type="text" id="nachname" name="nachname" class="form-input" required autocomplete="family-name" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="geburtsdatum" class="form-label">Geburtsdatum *</label>
+                <input type="date" id="geburtsdatum" name="geburtsdatum" class="form-input" required />
+              </div>
+              <div class="form-group">
+                <label for="geschlecht" class="form-label">Geschlecht</label>
+                <select id="geschlecht" name="geschlecht" class="form-input form-select">
+                  <option value="">— bitte wählen —</option>
+                  <option value="maennlich">Männlich</option>
+                  <option value="weiblich">Weiblich</option>
+                  <option value="divers">Divers</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="strasse" class="form-label">Straße & Hausnummer *</label>
+              <input type="text" id="strasse" name="strasse" class="form-input" required autocomplete="street-address" />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group form-group--plz">
+                <label for="plz" class="form-label">PLZ *</label>
+                <input type="text" id="plz" name="plz" class="form-input" required autocomplete="postal-code" maxlength="5" pattern="\d{5}" />
+              </div>
+              <div class="form-group">
+                <label for="ort" class="form-label">Ort *</label>
+                <input type="text" id="ort" name="ort" class="form-input" required autocomplete="address-level2" />
+              </div>
+            </div>
+
+          </fieldset>
+
+          <fieldset class="form-fieldset">
+            <legend class="fieldset-legend">Kontakt</legend>
+
+            <div class="form-group">
+              <label for="email" class="form-label">E-Mail-Adresse *</label>
+              <input type="email" id="email" name="email" class="form-input" required autocomplete="email" />
+            </div>
+
+            <div class="form-group">
+              <label for="telefon" class="form-label">Telefon / Handy</label>
+              <input type="tel" id="telefon" name="telefon" class="form-input" autocomplete="tel" />
+            </div>
+
+          </fieldset>
+
+          <fieldset class="form-fieldset">
+            <legend class="fieldset-legend">Mitgliedschaft</legend>
+
+            <div class="form-group">
+              <label for="kategorie" class="form-label">Beitragskategorie *</label>
+              <select id="kategorie" name="kategorie" class="form-input form-select" required>
+                <option value="">— bitte wählen —</option>
+                {beitraegeGruppen.map(g => (
+                  <optgroup label={g.kategorie}>
+                    {g.eintraege.map(e => (
+                      <option value={e.bezeichnung.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}>
+                        {e.bezeichnung} — {e.preis} / {e.zeitraum}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="mannschaft" class="form-label">Gewünschte Mannschaft / Altersklasse</label>
+              <input type="text" id="mannschaft" name="mannschaft" class="form-input" placeholder="z.B. U12, 1. Mannschaft, Damen …" />
+            </div>
+
+            <div class="form-group">
+              <label for="anmerkungen" class="form-label">Anmerkungen</label>
+              <textarea id="anmerkungen" name="anmerkungen" class="form-input form-textarea" rows="4" placeholder="Fragen, besondere Hinweise …"></textarea>
+            </div>
+
+          </fieldset>
+
+          <div class="form-consent">
+            <label class="checkbox-label">
+              <input type="checkbox" name="datenschutz" required class="checkbox-input" />
+              <span>
+                Ich habe die <a href="/datenschutz" target="_blank">Datenschutzerklärung</a> gelesen und bin mit der Verarbeitung meiner Daten zum Zweck der Vereinsmitgliedschaft einverstanden. *
+              </span>
+            </label>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-submit">
+              Anmeldung absenden →
+            </button>
+            <p class="form-hint">* Pflichtfelder. Nach dem Absenden erhältst du eine Bestätigungsmail.</p>
+          </div>
+
+        </form>
+      </div>
+
+      <aside class="sidebar">
+        <div class="sidebar-card">
+          <div class="sidebar-title">Ablauf</div>
+          <ol class="steps-list">
+            <li><strong>Formular ausfüllen</strong> und absenden</li>
+            <li><strong>Bestätigungsmail</strong> mit SEPA-Mandat erhalten</li>
+            <li><strong>SEPA-Mandat unterschreiben</strong> und zurückschicken</li>
+            <li><strong>Willkommen</strong> bei der SpVgg!</li>
+          </ol>
+        </div>
+
+        <div class="sidebar-card">
+          <div class="sidebar-title">Beiträge</div>
+          <ul class="info-list">
+            <li>Jahresbeitrag per <strong>SEPA-Lastschrift</strong></li>
+            <li>Fälligkeit: <strong>01. März</strong></li>
+            {beitraegeGruppen.find(g => g.kategorie === 'Aufnahmegebühr')?.eintraege.map(e => (
+              <li>{e.bezeichnung.replace('Einmalige Aufnahmegebühr ', '')}: <strong>{e.preis}</strong></li>
+            ))}
+          </ul>
+          <a href="/verein/beitraege" class="sidebar-link">→ Alle Beitragssätze</a>
+        </div>
+
+        <div class="sidebar-card">
+          <div class="sidebar-title">Fragen?</div>
+          <p>Bei Fragen zur Mitgliedschaft wende dich an unseren Abteilungsleiter.</p>
+          <a href="/verein/ansprechpartner" class="sidebar-link">→ Zu den Ansprechpartnern</a>
+          <Obfuscate email={allgemeineEmail} label={`→ ${allgemeineEmail}`} class="sidebar-link" />
+        </div>
+      </aside>
+
+    </div>
+  </section>
+
+</Base>
+
+<style>
+  .page-hero {
+    background: var(--color-black);
+    border-bottom: 1px solid var(--color-border);
+    padding: 7rem 0 3rem;
+  }
+  .page-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: clamp(3rem, 8vw, 6rem);
+    text-transform: uppercase;
+    line-height: 1;
+    letter-spacing: 1px;
+    margin-bottom: 0.75rem;
+  }
+  .page-title span { color: var(--color-red); }
+  .page-sub { font-size: 1rem; font-weight: 300; color: var(--color-muted); }
+
+  .form-section { padding: 4rem 0 5rem; background: var(--color-black); }
+  .form-layout {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  .form-intro { margin-bottom: 2rem; }
+  .form-heading {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--color-red);
+    display: inline-block;
+  }
+  .form-intro p {
+    font-size: 0.96rem;
+    font-weight: 300;
+    color: var(--color-muted);
+    line-height: 1.7;
+    margin-top: 0.75rem;
+  }
+
+  .mitglied-form { display: flex; flex-direction: column; gap: 2rem; }
+
+  .form-fieldset {
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    padding: 1.5rem;
+    background: var(--color-surface);
+  }
+  .fieldset-legend {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--color-red);
+    padding: 0 0.5rem;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .form-group { display: flex; flex-direction: column; gap: 0.4rem; margin-top: 1rem; }
+  .form-group--plz { max-width: 140px; }
+
+  .form-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .form-input {
+    background: var(--color-black);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    color: var(--color-text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.96rem;
+    font-weight: 400;
+    padding: 0.65rem 0.9rem;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+  }
+  .form-input:focus { border-color: var(--color-red); }
+  .form-input::placeholder { color: #555; }
+  .form-select { cursor: pointer; }
+  .form-select option { background: #222; }
+  .form-select optgroup { color: var(--color-muted); }
+  .form-textarea { resize: vertical; min-height: 100px; }
+
+  .form-consent {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    padding: 1.25rem;
+  }
+  .checkbox-label {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 300;
+    color: var(--color-muted);
+    line-height: 1.6;
+  }
+  .checkbox-label a { color: var(--color-red); text-decoration: none; }
+  .checkbox-label a:hover { text-decoration: underline; }
+  .checkbox-input {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    margin-top: 3px;
+    accent-color: var(--color-red);
+    cursor: pointer;
+  }
+
+  .form-actions { display: flex; flex-direction: column; gap: 0.75rem; }
+  .btn-submit {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: var(--color-red);
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    padding: 0.9rem 2rem;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    align-self: flex-start;
+  }
+  .btn-submit:hover { background: #a50d24; }
+  .btn-submit:active { transform: translateY(1px); }
+  .form-hint {
+    font-size: 0.86rem;
+    font-weight: 300;
+    color: var(--color-muted);
+  }
+
+  /* Sidebar */
+  .sidebar { display: flex; flex-direction: column; gap: 1rem; }
+  .sidebar-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    padding: 1.25rem;
+  }
+  .sidebar-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 0.84rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--color-red);
+    display: inline-block;
+  }
+  .sidebar-card p {
+    font-size: 0.9rem;
+    font-weight: 300;
+    color: var(--color-muted);
+    line-height: 1.65;
+  }
+  .steps-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    counter-reset: steps;
+  }
+  .steps-list li {
+    font-size: 0.9rem;
+    font-weight: 300;
+    color: var(--color-muted);
+    padding-left: 1.75rem;
+    position: relative;
+    line-height: 1.5;
+    counter-increment: steps;
+  }
+  .steps-list li::before {
+    content: counter(steps);
+    position: absolute;
+    left: 0;
+    width: 18px;
+    height: 18px;
+    background: var(--color-red);
+    color: #fff;
+    border-radius: 50%;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 0.72rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 2px;
+  }
+  .steps-list strong { color: var(--color-text); font-weight: 500; }
+  .info-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .info-list li {
+    font-size: 0.9rem;
+    font-weight: 300;
+    color: var(--color-muted);
+    padding-left: 1rem;
+    position: relative;
+    line-height: 1.5;
+  }
+  .info-list li::before {
+    content: '◆';
+    position: absolute;
+    left: 0;
+    font-size: 0.45rem;
+    color: var(--color-red);
+    top: 5px;
+  }
+  .info-list strong { color: var(--color-text); font-weight: 500; }
+  .sidebar-link {
+    display: block;
+    margin-top: 0.75rem;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.86rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--color-red);
+    text-decoration: none;
+  }
+  .sidebar-link:hover { text-decoration: underline; }
+
+  @media (max-width: 860px) {
+    .form-layout { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    .form-group--plz { max-width: 100%; }
+  }
+</style>

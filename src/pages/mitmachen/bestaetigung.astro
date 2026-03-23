@@ -1,0 +1,89 @@
+---
+import Base from '../../layouts/Base.astro'
+---
+
+<Base title="Anmeldung eingegangen" description="Deine Anmeldung bei der SpVgg Höhenkirchen ist eingegangen.">
+
+  <div class="confirm-wrap">
+    <div class="container confirm-inner">
+      <div class="check-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 6 9 17l-5-5"/>
+        </svg>
+      </div>
+      <h1 class="confirm-title">Anmeldung <span>eingegangen!</span></h1>
+      <p class="confirm-text">
+        Vielen Dank für deine Anmeldung. Wir melden uns innerhalb von 2–3 Werktagen mit allen weiteren Informationen bei dir.
+      </p>
+      <div class="confirm-actions">
+        <a href="/" class="btn-primary">Zurück zur Startseite</a>
+        <a href="/verein/ansprechpartner" class="btn-secondary">Ansprechpartner</a>
+      </div>
+    </div>
+  </div>
+
+</Base>
+
+<style>
+  .confirm-wrap {
+    min-height: calc(100vh - 60px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-black);
+    padding: 4rem 1rem;
+  }
+  .confirm-inner {
+    max-width: 560px;
+    text-align: center;
+  }
+  .check-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(200,16,46,0.1);
+    border: 2px solid var(--color-red);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.75rem;
+    color: var(--color-red);
+  }
+  .confirm-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    text-transform: uppercase;
+    line-height: 1;
+    letter-spacing: 1px;
+    margin-bottom: 1.25rem;
+  }
+  .confirm-title span { color: var(--color-red); }
+  .confirm-text {
+    font-size: 1rem;
+    font-weight: 300;
+    color: var(--color-muted);
+    line-height: 1.75;
+    margin-bottom: 2.5rem;
+  }
+  .confirm-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .btn-secondary {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    text-decoration: none;
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    padding: 0.7rem 1.5rem;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .btn-secondary:hover { color: var(--color-text); border-color: var(--color-text); }
+</style>

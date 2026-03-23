@@ -1,0 +1,225 @@
+---
+import Base from '../../layouts/Base.astro'
+import VereinNav from '../../components/VereinNav.astro'
+import { createReader } from '@keystatic/core/reader'
+import keystaticConfig from '../../../keystatic.config'
+
+const reader = createReader(process.cwd(), keystaticConfig)
+const chronik = await reader.singletons.chronik.read()
+const eintraege = chronik?.eintraege ?? []
+
+const ueberUns = await reader.singletons.ueber_uns.read()
+const absaetze = ueberUns?.absaetze ?? []
+const stats    = ueberUns?.stats ?? []
+---
+
+<Base title="Über uns & Chronik" description="Geschichte und Chronik der SpVgg Höhenkirchen seit der Gründung 1945.">
+
+  <div class="page-hero">
+    <div class="container">
+      <p class="section-eyebrow">Der Verein</p>
+      <h1 class="page-title">Über uns & <span>Chronik</span></h1>
+      <p class="page-sub">Vom Hauserwirt bis heute — die Geschichte der SpVgg Höhenkirchen.</p>
+    </div>
+  </div>
+
+  <VereinNav active="/verein/ueber-uns" />
+
+  <section class="intro-section">
+    <div class="container intro-grid">
+      <div class="intro-text">
+        <h2 class="intro-heading">Wer wir sind</h2>
+        {absaetze.map(a => <p>{a.text}</p>)}
+      </div>
+      <div class="intro-stats">
+        {stats.map(s => (
+          <div class="istat">
+            <span class="istat-num">{s.zahl}</span>
+            <span class="istat-label">{s.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="chronik-section">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <p class="section-eyebrow">Geschichte</p>
+          <h2 class="section-title">Vereins<span class="red">chronik</span></h2>
+        </div>
+      </div>
+
+      <div class="timeline">
+        {eintraege.map((e, i) => {
+          const isMilestone = e.meilenstein ?? false
+          return (
+            <div class:list={['tl-item', { milestone: isMilestone }]}>
+              <div class="tl-left">
+                <span class="tl-year">{e.jahr}</span>
+              </div>
+              <div class="tl-dot-wrap">
+                <div class:list={['tl-line-top', { first: i === 0 }]}></div>
+                <div class:list={['tl-dot', { milestone: isMilestone }]}></div>
+                <div class:list={['tl-line-bottom', { last: i === eintraege.length - 1 }]}></div>
+              </div>
+              <div class="tl-right">
+                <p class:list={['tl-text', { milestone: isMilestone }]}>{e.ereignis}</p>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  </section>
+
+</Base>
+
+<style>
+  .page-hero {
+    background: var(--color-black);
+    border-bottom: 1px solid var(--color-border);
+    padding: 7rem 0 3rem;
+  }
+  .page-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: clamp(3rem, 8vw, 6rem);
+    text-transform: uppercase;
+    line-height: 1;
+    letter-spacing: 1px;
+    margin-bottom: 0.75rem;
+  }
+  .page-title span { color: var(--color-red); }
+  .page-sub { font-size: 1rem; font-weight: 300; color: var(--color-muted); }
+
+  /* Intro */
+  .intro-section { padding: 4rem 0; background: var(--color-surface); }
+  .intro-grid {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 4rem;
+    align-items: start;
+  }
+  .intro-heading {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 1.6rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--color-red);
+    display: inline-block;
+  }
+  .intro-text p {
+    font-size: 1rem;
+    font-weight: 300;
+    color: var(--color-muted);
+    line-height: 1.8;
+    margin-bottom: 1rem;
+  }
+  .intro-text p:last-child { margin-bottom: 0; }
+  .intro-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--color-border);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .istat {
+    background: var(--color-black);
+    padding: 1.5rem 1rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .istat-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 2.2rem;
+    color: var(--color-red);
+    line-height: 1;
+  }
+  .istat-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  /* Chronik / Timeline */
+  .chronik-section { padding: 4rem 0 5rem; background: var(--color-black); }
+  .timeline { display: flex; flex-direction: column; max-width: 800px; }
+  .tl-item {
+    display: grid;
+    grid-template-columns: 120px 32px 1fr;
+    gap: 0 1rem;
+    min-height: 56px;
+  }
+  .tl-left {
+    display: flex;
+    align-items: flex-start;
+    padding-top: 0.5rem;
+    justify-content: flex-end;
+  }
+  .tl-year {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.86rem;
+    letter-spacing: 1px;
+    color: var(--color-muted);
+    text-align: right;
+    line-height: 1.3;
+  }
+  .tl-item.milestone .tl-year { color: var(--color-red); font-weight: 800; font-size: 0.96rem; }
+  .tl-dot-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .tl-line-top, .tl-line-bottom {
+    flex: 1;
+    width: 2px;
+    background: var(--color-border);
+  }
+  .tl-line-top.first, .tl-line-bottom.last { background: transparent; }
+  .tl-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--color-border);
+    border: 2px solid var(--color-surface);
+    flex-shrink: 0;
+  }
+  .tl-dot.milestone {
+    width: 14px;
+    height: 14px;
+    background: var(--color-red);
+    border-color: var(--color-black);
+  }
+  .tl-right {
+    padding: 0.35rem 0 1rem;
+  }
+  .tl-text {
+    font-size: 1rem;
+    font-weight: 300;
+    color: var(--color-muted);
+    line-height: 1.5;
+  }
+  .tl-text.milestone {
+    color: var(--color-text);
+    font-weight: 500;
+  }
+
+  @media (max-width: 700px) {
+    .intro-grid { grid-template-columns: 1fr; }
+    .tl-item { grid-template-columns: 90px 28px 1fr; }
+  }
+</style>

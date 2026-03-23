@@ -1,0 +1,200 @@
+---
+import Base from '../../layouts/Base.astro'
+import VereinNav from '../../components/VereinNav.astro'
+import { createReader } from '@keystatic/core/reader'
+import keystaticConfig from '../../../keystatic.config'
+
+const reader = createReader(process.cwd(), keystaticConfig)
+const data = await reader.singletons.trainingszeiten.read()
+const platzzeiten = data?.platzzeiten ?? []
+const hallenzeiten = data?.hallenzeiten ?? []
+---
+
+<Base title="Trainingszeiten" description="Trainingszeiten aller Mannschaften der SpVgg Höhenkirchen — Platz und Halle.">
+
+  <div class="page-hero">
+    <div class="container">
+      <p class="section-eyebrow">Organisation</p>
+      <h1 class="page-title">Trainings<span>zeiten</span></h1>
+      <p class="page-sub">Platz- und Hallentraining aller Mannschaften im Überblick.</p>
+    </div>
+  </div>
+
+  <VereinNav active="/verein/training" />
+
+  <section class="training-section">
+    <div class="container">
+
+      <div class="hint-box">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <p>Alle Zeiten sind Richtwerte. Änderungen werden über die Trainer kommuniziert. Bei Fragen wende dich an den <a href="/verein/ansprechpartner">Jugend- oder Abteilungsleiter</a>.</p>
+      </div>
+
+      <!-- Platztraining -->
+      <div class="training-block">
+        <div class="block-title-wrap">
+          <div class="block-icon">⚽</div>
+          <div>
+            <h2 class="block-title">Platztraining</h2>
+            <p class="block-sub">Outdoor — Saison April bis Oktober</p>
+          </div>
+        </div>
+        <div class="training-table-wrap">
+          <table class="training-table">
+            <thead>
+              <tr>
+                <th>Mannschaft</th>
+                <th>Tag(e)</th>
+                <th>Uhrzeit</th>
+                <th>Ort</th>
+              </tr>
+            </thead>
+            <tbody>
+              {platzzeiten.map(z => (
+                <tr>
+                  <td class="td-team">{z.team}</td>
+                  <td>{z.tag}</td>
+                  <td class="td-zeit">{z.zeit}</td>
+                  <td class="td-ort">{z.ort}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Hallentraining -->
+      <div class="training-block">
+        <div class="block-title-wrap">
+          <div class="block-icon">🏟</div>
+          <div>
+            <h2 class="block-title">Hallentraining</h2>
+            <p class="block-sub">Indoor — Saison November bis März</p>
+          </div>
+        </div>
+        <div class="training-table-wrap">
+          <table class="training-table">
+            <thead>
+              <tr>
+                <th>Mannschaft</th>
+                <th>Tag</th>
+                <th>Uhrzeit</th>
+                <th>Halle</th>
+              </tr>
+            </thead>
+            <tbody>
+              {hallenzeiten.map(z => (
+                <tr>
+                  <td class="td-team">{z.team}</td>
+                  <td>{z.tag}</td>
+                  <td class="td-zeit">{z.zeit}</td>
+                  <td class="td-ort">{z.ort}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</Base>
+
+<style>
+  .page-hero {
+    background: var(--color-black);
+    border-bottom: 1px solid var(--color-border);
+    padding: 7rem 0 3rem;
+  }
+  .page-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: clamp(3rem, 8vw, 6rem);
+    text-transform: uppercase;
+    line-height: 1;
+    letter-spacing: 1px;
+    margin-bottom: 0.75rem;
+  }
+  .page-title span { color: var(--color-red); }
+  .page-sub { font-size: 1rem; font-weight: 300; color: var(--color-muted); }
+
+  .training-section { padding: 4rem 0 5rem; background: var(--color-black); }
+
+  .hint-box {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    background: rgba(200,16,46,0.07);
+    border: 1px solid rgba(200,16,46,0.2);
+    border-radius: 3px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 2.5rem;
+    color: var(--color-muted);
+    font-size: 0.96rem;
+    font-weight: 300;
+  }
+  .hint-box svg { flex-shrink: 0; color: var(--color-red); margin-top: 2px; }
+  .hint-box a { color: var(--color-red); }
+
+  .training-block { margin-bottom: 3rem; }
+  .block-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--color-red);
+  }
+  .block-icon { font-size: 1.8rem; }
+  .block-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    line-height: 1;
+  }
+  .block-sub { font-size: 0.86rem; color: var(--color-muted); margin-top: 0.2rem; }
+
+  .training-table-wrap { overflow-x: auto; }
+  .training-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.96rem;
+  }
+  .training-table th {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    text-align: left;
+    padding: 0.6rem 1rem;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .training-table td {
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-muted);
+    font-weight: 300;
+  }
+  .training-table tr:last-child td { border-bottom: none; }
+  .training-table tr { background: var(--color-surface); transition: background 0.15s; }
+  .training-table tr:hover { background: var(--color-black); }
+  .td-team {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    text-transform: uppercase;
+    color: var(--color-text) !important;
+    letter-spacing: 0.5px;
+  }
+  .td-zeit { white-space: nowrap; }
+  .td-ort {
+    font-size: 0.86rem;
+    color: var(--color-muted);
+  }
+</style>

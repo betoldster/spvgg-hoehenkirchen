@@ -1,0 +1,234 @@
+---
+export const prerender = false
+
+import Base from '../../layouts/Base.astro'
+import { createReader } from '@keystatic/core/reader'
+import { DocumentRenderer } from '@keystatic/core/renderer'
+import keystaticConfig from '../../../keystatic.config'
+
+const { slug } = Astro.params
+const reader = createReader(process.cwd(), keystaticConfig)
+const article = await reader.collections.news.read(slug!)
+
+if (!article) return Astro.redirect('/news')
+
+const inhalt = await article.inhalt()
+
+const katLabels: Record<string, string> = {
+  spielbericht: 'Spielbericht',
+  jugend:       'Jugend',
+  verein:       'Vereinsnews',
+}
+
+function formatDate(iso: string | null) {
+  if (!iso) return ''
+  const d = new Date(iso)
+  return d.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
+}
+---
+
+<Base title={article.titel} description={`${article.titel} — SpVgg Höhenkirchen`}>
+
+  <div class="article-hero">
+    <div class="container">
+      <nav class="breadcrumb">
+        <a href="/news">News</a>
+        <span>›</span>
+        <span>{katLabels[article.kategorie] ?? article.kategorie}</span>
+      </nav>
+      <div class="article-meta">
+        <span class="article-kat">{katLabels[article.kategorie] ?? article.kategorie}</span>
+        <time datetime={article.datum ?? ''}>{formatDate(article.datum)}</time>
+        {article.autor && <span>von {article.autor}</span>}
+      </div>
+      <h1 class="article-title">{article.titel}</h1>
+    </div>
+  </div>
+
+  {article.titelbild && (
+    <div class="article-cover">
+      <div class="container">
+        <img src={article.titelbild} alt={article.titel} class="cover-img" />
+      </div>
+    </div>
+  )}
+
+  <section class="article-section">
+    <div class="container">
+      <div class="article-grid">
+        <article class="article-body prose">
+          <DocumentRenderer document={inhalt} />
+        </article>
+        <aside class="article-sidebar">
+          <div class="sidebar-card">
+            <div class="sidebar-title">Über diesen Beitrag</div>
+            <dl class="sidebar-dl">
+              <dt>Datum</dt>
+              <dd>{formatDate(article.datum)}</dd>
+              {article.autor && <><dt>Autor</dt><dd>{article.autor}</dd></>}
+              <dt>Kategorie</dt>
+              <dd>{katLabels[article.kategorie] ?? article.kategorie}</dd>
+            </dl>
+          </div>
+          <a href="/news" class="sidebar-back">← Zurück zu allen News</a>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+</Base>
+
+<style>
+  .article-hero {
+    background: var(--color-black);
+    border-bottom: 1px solid var(--color-border);
+    padding: 7rem 0 2.5rem;
+  }
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.90rem;
+    color: var(--color-muted);
+    margin-bottom: 1rem;
+  }
+  .breadcrumb a { color: var(--color-muted); text-decoration: none; transition: color 0.2s; }
+  .breadcrumb a:hover { color: var(--color-red); }
+  .article-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+    font-size: 0.8rem;
+    color: var(--color-muted);
+  }
+  .article-kat {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.90rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    background: var(--color-red);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 2px;
+  }
+  .article-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    text-transform: uppercase;
+    line-height: 1.05;
+    letter-spacing: 1px;
+    max-width: 800px;
+  }
+
+  .article-cover { padding: 2rem 0 0; background: var(--color-black); }
+  .cover-img {
+    width: 100%;
+    max-height: 480px;
+    object-fit: cover;
+    border-radius: 3px;
+    border: 1px solid var(--color-border);
+  }
+
+  .article-section { padding: 3rem 0 5rem; background: var(--color-black); }
+  .article-grid {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 3rem;
+    align-items: flex-start;
+  }
+
+  /* Prose */
+  .prose {
+    font-size: 1rem;
+    font-weight: 300;
+    line-height: 1.85;
+    color: var(--color-text);
+  }
+  .prose :global(h2) {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 2rem 0 0.75rem;
+    color: var(--color-text);
+  }
+  .prose :global(h3) {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 1.5rem 0 0.5rem;
+    color: var(--color-text);
+  }
+  .prose :global(p) { margin-bottom: 1.25rem; }
+  .prose :global(blockquote) {
+    border-left: 3px solid var(--color-red);
+    padding-left: 1.25rem;
+    margin: 1.5rem 0;
+    color: var(--color-muted);
+    font-style: italic;
+  }
+  .prose :global(ul), .prose :global(ol) {
+    padding-left: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .prose :global(li) { margin-bottom: 0.4rem; }
+  .prose :global(strong) { font-weight: 600; color: var(--color-text); }
+  .prose :global(a) { color: var(--color-red); }
+
+  /* Sidebar */
+  .sidebar-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .sidebar-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 0.86rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--color-text);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--color-red);
+    display: inline-block;
+  }
+  .sidebar-dl { display: flex; flex-direction: column; gap: 0.5rem; }
+  .sidebar-dl dt {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.90rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin-top: 0.25rem;
+  }
+  .sidebar-dl dd { font-size: 0.96rem; color: var(--color-text); }
+  .sidebar-back {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.90rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    text-decoration: none;
+    display: block;
+    padding: 0.75rem 0;
+    transition: color 0.2s;
+  }
+  .sidebar-back:hover { color: var(--color-red); }
+
+  @media (max-width: 800px) {
+    .article-grid { grid-template-columns: 1fr; }
+    .article-sidebar { order: -1; }
+  }
+</style>

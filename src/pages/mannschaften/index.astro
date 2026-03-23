@@ -1,0 +1,287 @@
+---
+import Base from '../../layouts/Base.astro'
+import { createReader } from '@keystatic/core/reader'
+import keystaticConfig from '../../../keystatic.config'
+
+const reader = createReader(process.cwd(), keystaticConfig)
+const allTeams = await reader.collections.mannschaften.all()
+const active = allTeams.filter(t => t.entry.aktiv)
+
+const kategorien = [
+  {
+    slug:  'herren',
+    label: 'Herren',
+    sub:   '1. & 2. Mannschaft',
+    desc:  'Unsere Aktivenmannschaften im Seniorenfußball.',
+    teams: active.filter(t => t.entry.kategorie === 'herren'),
+  },
+  {
+    slug:  'senioren',
+    label: 'Senioren',
+    sub:   'Senioren A · B · C',
+    desc:  'Fußball für erfahrene Spieler ab 32 Jahren.',
+    teams: active.filter(t => t.entry.kategorie === 'senioren'),
+  },
+  {
+    slug:  'junioren',
+    label: 'Junioren',
+    sub:   'U5 bis U19',
+    desc:  'Unsere Nachwuchsabteilung — von den Bambini bis zur A-Jugend.',
+    teams: active.filter(t => t.entry.kategorie === 'junioren'),
+  },
+  {
+    slug:  'damen',
+    label: 'Damen',
+    sub:   'Damen & Juniorinnen',
+    desc:  'Frauenfußball auf allen Altersebenen.',
+    teams: active.filter(t => t.entry.kategorie === 'damen'),
+  },
+]
+
+const LOGO = '/logo.png'
+---
+
+<Base title="Mannschaften" description="Alle Mannschaften der SpVgg Höhenkirchen — von den Bambini bis zur 1. Mannschaft.">
+
+  <div class="page-hero">
+    <div class="container">
+      <p class="section-eyebrow">Der Verein</p>
+      <h1 class="page-title">Mannschaften</h1>
+      <p class="page-sub">{active.length} aktive Teams — für jeden Altersbereich und jedes Leistungslevel.</p>
+    </div>
+  </div>
+
+  <!-- Kategorie-Karten -->
+  <section class="kat-section">
+    <div class="container">
+      <div class="kat-grid">
+        {kategorien.map(k => (
+          <a href={`/mannschaften/${k.slug}`} class="kat-card">
+            <div class="kat-card-top">
+              <img src={LOGO} alt="" width="48" height="48" class="kat-logo" />
+              <span class="kat-count">{k.teams.length}</span>
+            </div>
+            <div class="kat-label">{k.label}</div>
+            <div class="kat-sub">{k.sub}</div>
+            <p class="kat-desc">{k.desc}</p>
+            <span class="kat-link">Teams ansehen →</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Vollständige Liste -->
+  <section class="all-section">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <p class="section-eyebrow">Übersicht</p>
+          <h2 class="section-title">Alle <span class="red">Teams</span></h2>
+        </div>
+      </div>
+
+      {kategorien.map(k => k.teams.length > 0 && (
+        <div class="group">
+          <div class="group-header">
+            <h3 class="group-title">{k.label}</h3>
+            <a href={`/mannschaften/${k.slug}`} class="link-all">Zur Kategorie</a>
+          </div>
+          <div class="team-list">
+            {k.teams.map(t => (
+              <div class="team-row">
+                <div class="team-row-icon">
+                  <img src={LOGO} alt="" width="32" height="32" />
+                </div>
+                <div class="team-row-name">{t.entry.name}</div>
+                <div class="team-row-liga">{t.entry.liga}</div>
+                {t.entry.trainer_name && (
+                  <div class="team-row-trainer">{t.entry.trainer_name}</div>
+                )}
+                {t.entry.spielplan_url && (
+                  <a href={t.entry.spielplan_url} target="_blank" rel="noopener" class="team-row-link">
+                    Spielplan
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+</Base>
+
+<style>
+  .page-hero {
+    background: var(--color-black);
+    border-bottom: 1px solid var(--color-border);
+    padding: 7rem 0 3rem;
+  }
+  .page-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: clamp(3rem, 8vw, 6rem);
+    text-transform: uppercase;
+    line-height: 1;
+    letter-spacing: 1px;
+    margin-bottom: 0.75rem;
+  }
+  .page-sub {
+    font-size: 1rem;
+    font-weight: 300;
+    color: var(--color-muted);
+  }
+
+  /* Kategorie-Karten */
+  .kat-section { padding: 3.5rem 0; background: var(--color-surface); }
+  .kat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+  .kat-card {
+    background: var(--color-black);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    padding: 1.75rem 1.5rem;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .kat-card:hover { border-color: var(--color-red); transform: translateY(-3px); }
+  .kat-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+  }
+  .kat-logo { opacity: 0.55; }
+  .kat-count {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 2.5rem;
+    color: var(--color-border);
+    line-height: 1;
+  }
+  .kat-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    line-height: 1;
+  }
+  .kat-sub {
+    font-size: 0.90rem;
+    color: var(--color-muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+  }
+  .kat-desc {
+    font-size: 0.95rem;
+    font-weight: 300;
+    color: var(--color-muted);
+    line-height: 1.5;
+    flex: 1;
+    margin-top: 0.25rem;
+  }
+  .kat-link {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.90rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--color-red);
+    margin-top: 0.75rem;
+  }
+
+  /* Vollständige Liste */
+  .all-section { padding: 3.5rem 0 5rem; background: var(--color-black); }
+  .group { margin-bottom: 2.5rem; }
+  .group-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--color-red);
+  }
+  .group-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 1.3rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .team-list { display: flex; flex-direction: column; gap: 1px; }
+  .team-row {
+    display: grid;
+    grid-template-columns: 44px 1fr 140px 160px 80px;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 2px;
+    transition: border-color 0.15s;
+  }
+  .team-row:hover { border-color: var(--color-muted); }
+  .team-row-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--color-black);
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 3px;
+  }
+  .team-row-icon img { opacity: 0.6; width: 100%; height: 100%; object-fit: contain; }
+  .team-row-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .team-row-liga {
+    font-size: 0.8rem;
+    color: var(--color-muted);
+  }
+  .team-row-trainer {
+    font-size: 0.8rem;
+    color: var(--color-muted);
+  }
+  .team-row-link {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.94rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--color-red);
+    text-decoration: none;
+    text-align: right;
+  }
+  .team-row-link:hover { text-decoration: underline; }
+
+  @media (max-width: 900px) {
+    .kat-grid { grid-template-columns: repeat(2, 1fr); }
+    .team-row { grid-template-columns: 44px 1fr 120px; }
+    .team-row-trainer, .team-row-link { display: none; }
+  }
+  @media (max-width: 500px) {
+    .kat-grid { grid-template-columns: 1fr; }
+    .team-row { grid-template-columns: 44px 1fr; }
+    .team-row-liga { display: none; }
+  }
+</style>

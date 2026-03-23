@@ -1,0 +1,20 @@
+name: Sportanlage SpVgg Höhenkirchen
+strasse: Sportplatzstraße 11
+ort: 85635 Höhenkirchen-Siegertsbrunn
+optionen:
+  - icon: 🚗
+    titel: Mit dem Auto
+    text: >-
+      Über die A8 (München–Salzburg), Ausfahrt Höhenkirchen-Siegertsbrunn. Dann
+      Richtung Ortseingang, die Sportanlage liegt am nordwestlichen Ortsrand.
+      Parkplätze direkt am Sportgelände vorhanden.
+  - icon: 🚌
+    titel: Mit Bus & S-Bahn
+    text: >-
+      S-Bahn Linie S3 bis Bahnhof Höhenkirchen-Siegertsbrunn. Von dort mit dem
+      Bus oder zu Fuß (~20 min) zur Sportanlage.
+  - icon: 🚲
+    titel: Mit dem Fahrrad
+    text: >-
+      Das Sportgelände ist gut mit dem Fahrrad erreichbar. Fahrradabstellplätze
+      befinden sich am Eingang der Anlage.

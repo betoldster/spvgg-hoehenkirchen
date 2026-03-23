@@ -1,0 +1,49 @@
+eintraege:
+  - jahr: "vor 1939"
+    ereignis: "FC Höhenkirchen spielt Fußball in der Region"
+    meilenstein: false
+  - jahr: "1939"
+    ereignis: "FC Höhenkirchen bei Kriegsbeginn aufgelöst"
+    meilenstein: false
+  - jahr: "22.09.1945"
+    ereignis: "Gründung SpVgg Höhenkirchen — 32 Männer beim Hauserwirt"
+    meilenstein: true
+  - jahr: "1945–1968"
+    ereignis: "Fußball ist einzige Sportart (außer kurze Berg-/Skiabteilung)"
+    meilenstein: false
+  - jahr: "Nov. 1968"
+    ereignis: "Gründung Schach-Abteilung"
+    meilenstein: false
+  - jahr: "1971"
+    ereignis: "Gründung Gymnastik-Abteilung"
+    meilenstein: false
+  - jahr: "1970"
+    ereignis: "Mitgliederzahl: 170"
+    meilenstein: false
+  - jahr: "1972"
+    ereignis: "Gründung Männerturnen, Stockschießen, Tennis"
+    meilenstein: false
+  - jahr: "1976"
+    ereignis: "Gründung Volleyball · Auflösung Männerturnen"
+    meilenstein: false
+  - jahr: "1977"
+    ereignis: "Gründung Karate-Abteilung"
+    meilenstein: false
+  - jahr: "1978"
+    ereignis: "Meilenstein: 1.000 Mitglieder"
+    meilenstein: true
+  - jahr: "Juni 1990"
+    ereignis: "Gründung Tischtennis-Abteilung"
+    meilenstein: false
+  - jahr: "Jan. 1992"
+    ereignis: "Gründung Basketball-Abteilung"
+    meilenstein: false
+  - jahr: "Okt. 1997"
+    ereignis: "Meilenstein: 2.000 Mitglieder — Großverein Landkreis München"
+    meilenstein: true
+  - jahr: "2005"
+    ereignis: "60-jähriges Vereinsjubiläum"
+    meilenstein: false
+  - jahr: "2022"
+    ereignis: "Stefan Möhren neuer Vorstand · Karlheinz Neumayer nach langer Ära"
+    meilenstein: false

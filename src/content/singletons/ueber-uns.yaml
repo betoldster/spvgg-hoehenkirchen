@@ -1,0 +1,21 @@
+absaetze:
+  - text: >-
+      Die Spielvereinigung Höhenkirchen ist ein Mehrspartenverein mit über 2.000 Mitgliedern
+      im Landkreis München. Was 1945 mit 32 Männern und einer Leidenschaft für Fußball begann,
+      ist heute einer der größten Vereine der Region.
+  - text: >-
+      Neben der Fußballabteilung beheimaten wir über zehn weitere Sportarten — von Basketball
+      über Karate bis Feldhockey. Doch das Herz des Vereins schlägt seit jeher für den Fußball.
+  - text: >-
+      Unsere Jugendabteilung mit über 20 Teams von U5 bis U19 ist eine der größten im
+      Landkreis München. Wir bieten jedem Kind — unabhängig von Talent oder Vorkenntnissen —
+      die Möglichkeit, Fußball zu spielen und Freundschaften zu schließen.
+stats:
+  - zahl: "1945"
+    label: Gegründet
+  - zahl: "2000+"
+    label: Mitglieder
+  - zahl: "10+"
+    label: Sportarten
+  - zahl: "28+"
+    label: Fußball-Teams

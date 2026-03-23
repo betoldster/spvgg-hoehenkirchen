@@ -1,0 +1,67 @@
+saison: 2025/26
+fussball_de_url: https://www.fussball.de
+ergebnisse:
+  - datum: 15.03.2025
+    heim: SpVgg Höhenkirchen
+    gast: TSV Ottobrunn
+    heimTor: 3
+    gastTor: 1
+    liga: Kreisklasse
+    mannschaft: 1. Mannschaft
+  - datum: 08.03.2025
+    heim: FC Deisenhofen II
+    gast: SpVgg Höhenkirchen
+    heimTor: 0
+    gastTor: 2
+    liga: Kreisklasse
+    mannschaft: 1. Mannschaft
+  - datum: 01.03.2025
+    heim: SpVgg Höhenkirchen
+    gast: SV Siegertsbrunn
+    heimTor: 1
+    gastTor: 1
+    liga: Kreisklasse
+    mannschaft: 1. Mannschaft
+  - datum: 22.02.2025
+    heim: SpVgg Höhenkirchen
+    gast: FC Faistenhaar
+    heimTor: 4
+    gastTor: 0
+    liga: Kreisklasse
+    mannschaft: 1. Mannschaft
+  - datum: 15.02.2025
+    heim: TSV Neubiberg
+    gast: SpVgg Höhenkirchen
+    heimTor: 2
+    gastTor: 2
+    liga: Kreisklasse
+    mannschaft: 1. Mannschaft
+naechsteSpiele:
+  - datum: 22.03.2025
+    uhrzeit: "15:00"
+    heim: SpVgg Höhenkirchen
+    gast: TSV Grünwald
+    liga: Kreisklasse
+    mannschaft: 1. Mannschaft
+    ort: Sportanlage Höhenkirchen
+  - datum: 29.03.2025
+    uhrzeit: "14:00"
+    heim: FC Egmating
+    gast: SpVgg Höhenkirchen
+    liga: Kreisklasse
+    mannschaft: 1. Mannschaft
+    ort: Sportplatz Egmating
+  - datum: 05.04.2025
+    uhrzeit: "16:00"
+    heim: SpVgg Höhenkirchen
+    gast: SV Perach
+    liga: Kreisklasse
+    mannschaft: 1. Mannschaft
+    ort: Sportanlage Höhenkirchen
+  - datum: 12.04.2025
+    uhrzeit: "15:30"
+    heim: TSV Brunnthal
+    gast: SpVgg Höhenkirchen
+    liga: Kreisklasse
+    mannschaft: 1. Mannschaft
+    ort: Sportplatz Brunnthal

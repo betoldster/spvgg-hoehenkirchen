@@ -1,0 +1,53 @@
+---
+interface Props { active: string }
+const { active } = Astro.props
+
+const links = [
+  { href: '/mitmachen/mitgliedschaft', label: 'Mitglied werden' },
+  { href: '/mitmachen/jugend',         label: 'Jugend anmelden' },
+]
+---
+
+<nav class="sub-nav">
+  <div class="container sub-nav-inner">
+    {links.map(l => (
+      <a
+        href={l.href}
+        class:list={['sub-nav-link', { active: active === l.href }]}
+      >{l.label}</a>
+    ))}
+  </div>
+</nav>
+
+<style>
+  .sub-nav {
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 60px;
+    z-index: 90;
+  }
+  .sub-nav-inner {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+  }
+  .sub-nav-link {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.82rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    text-decoration: none;
+    padding: 0.9rem 1.25rem;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .sub-nav-link:hover { color: var(--color-text); }
+  .sub-nav-link.active {
+    color: var(--color-text);
+    border-bottom-color: var(--color-red);
+  }
+</style>

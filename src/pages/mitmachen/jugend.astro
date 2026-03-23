@@ -1,0 +1,497 @@
+---
+import Base from '../../layouts/Base.astro'
+import MitmachenNav from '../../components/MitmachenNav.astro'
+import Obfuscate from '../../components/Obfuscate.astro'
+import { createReader } from '@keystatic/core/reader'
+import keystaticConfig from '../../../keystatic.config'
+
+const reader = createReader(process.cwd(), keystaticConfig)
+
+// Teams aus Keystatic (junioren + damen)
+const allTeams = await reader.collections.mannschaften.all()
+const teams = allTeams
+  .filter(t => t.entry.kategorie === 'junioren' || t.entry.kategorie === 'damen')
+  .map(t => ({ altersklasse: t.entry.name, jahrgang: t.entry.liga ?? '' }))
+
+// Beitragspreise für Sidebar
+const beitraegeData = await reader.singletons.beitraege.read()
+const jugendGruppe   = beitraegeData?.gruppen.find(g => g.kategorie === 'Jugend')
+const aufnahmeJugend = beitraegeData?.gruppen
+  .find(g => g.kategorie === 'Aufnahmegebühr')
+  ?.eintraege.find(e => e.bezeichnung.includes('Jugend'))
+
+// Jugendleiter aus Keystatic
+const apData    = await reader.singletons.ansprechpartner.read()
+const jugendl   = apData?.personen.find(p => p.funktion === 'Jugendleiter')
+---
+
+<Base title="Jugend anmelden" description="Dein Kind beim Fußball anmelden — SpVgg Höhenkirchen Jugendabteilung.">
+
+  <div class="page-hero">
+    <div class="container">
+      <p class="section-eyebrow">Mitmachen</p>
+      <h1 class="page-title">Jugend <span>anmelden</span></h1>
+      <p class="page-sub">Von U5 bis U19 — für jedes Kind ist ein Platz dabei.</p>
+    </div>
+  </div>
+
+  <MitmachenNav active="/mitmachen/jugend" />
+
+  <section class="jugend-section">
+    <div class="container jugend-layout">
+
+      <div class="main-col">
+
+        <div class="intro-box">
+          <div class="intro-icon">⚽</div>
+          <div>
+            <h2 class="intro-title">Fußball für alle</h2>
+            <p>
+              Unsere Jugendabteilung mit über 20 Teams von U5 bis U19 ist eine der größten im Landkreis München.
+              Wir bieten jedem Kind — unabhängig von Talent oder Vorkenntnissen — die Möglichkeit, Fußball zu
+              spielen und Freundschaften zu schließen.
+            </p>
+          </div>
+        </div>
+
+        <!-- Altersklassen -->
+        <div class="teams-block">
+          <h3 class="block-title">Unsere Teams</h3>
+          <div class="teams-grid">
+            {teams.map(t => (
+              <div class="team-chip">
+                <span class="chip-klasse">{t.altersklasse}</span>
+                <span class="chip-jg">{t.jahrgang}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <!-- Anmeldeformular -->
+        <div class="form-block">
+          <h3 class="block-title">Anmeldeformular Jugend</h3>
+
+          <form class="jugend-form" name="jugend-anmeldung" method="POST" action="/mitmachen/bestaetigung">
+            <input type="hidden" name="form-name" value="jugend-anmeldung" />
+
+            <fieldset class="form-fieldset">
+              <legend class="fieldset-legend">Kind</legend>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="kind-vorname" class="form-label">Vorname des Kindes *</label>
+                  <input type="text" id="kind-vorname" name="kind-vorname" class="form-input" required />
+                </div>
+                <div class="form-group">
+                  <label for="kind-nachname" class="form-label">Nachname des Kindes *</label>
+                  <input type="text" id="kind-nachname" name="kind-nachname" class="form-input" required />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="kind-geburt" class="form-label">Geburtsdatum *</label>
+                  <input type="date" id="kind-geburt" name="kind-geburtsdatum" class="form-input" required />
+                </div>
+                <div class="form-group">
+                  <label for="altersklasse" class="form-label">Gewünschte Altersklasse</label>
+                  <select id="altersklasse" name="altersklasse" class="form-input form-select">
+                    <option value="">— wird ermittelt —</option>
+                    {teams.map(t => (
+                      <option value={t.altersklasse}>{t.altersklasse} ({t.jahrgang})</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+            </fieldset>
+
+            <fieldset class="form-fieldset">
+              <legend class="fieldset-legend">Erziehungsberechtigte Person</legend>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="eltern-vorname" class="form-label">Vorname *</label>
+                  <input type="text" id="eltern-vorname" name="eltern-vorname" class="form-input" required autocomplete="given-name" />
+                </div>
+                <div class="form-group">
+                  <label for="eltern-nachname" class="form-label">Nachname *</label>
+                  <input type="text" id="eltern-nachname" name="eltern-nachname" class="form-input" required autocomplete="family-name" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="eltern-email" class="form-label">E-Mail-Adresse *</label>
+                <input type="email" id="eltern-email" name="eltern-email" class="form-input" required autocomplete="email" />
+              </div>
+
+              <div class="form-group">
+                <label for="eltern-telefon" class="form-label">Telefon / Handy *</label>
+                <input type="tel" id="eltern-telefon" name="eltern-telefon" class="form-input" required autocomplete="tel" />
+              </div>
+
+              <div class="form-group">
+                <label for="eltern-adresse" class="form-label">Adresse (Straße, PLZ Ort) *</label>
+                <input type="text" id="eltern-adresse" name="eltern-adresse" class="form-input" required autocomplete="street-address" placeholder="z.B. Musterstraße 1, 85635 Höhenkirchen" />
+              </div>
+
+            </fieldset>
+
+            <fieldset class="form-fieldset">
+              <legend class="fieldset-legend">Sonstiges</legend>
+
+              <div class="form-group">
+                <label for="erfahrung" class="form-label">Vorerfahrung im Fußball</label>
+                <select id="erfahrung" name="erfahrung" class="form-input form-select">
+                  <option value="">— bitte wählen —</option>
+                  <option value="keine">Keine Vorerfahrung — Neueinsteiger</option>
+                  <option value="freizeit">Nur Freizeitfußball</option>
+                  <option value="verein">War bereits in einem anderen Verein</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="anmerkungen" class="form-label">Anmerkungen / Fragen</label>
+                <textarea id="anmerkungen" name="anmerkungen" class="form-input form-textarea" rows="3" placeholder="Gibt es besondere Hinweise oder Fragen?"></textarea>
+              </div>
+
+            </fieldset>
+
+            <div class="form-consent">
+              <label class="checkbox-label">
+                <input type="checkbox" name="datenschutz" required class="checkbox-input" />
+                <span>
+                  Ich habe die <a href="/datenschutz" target="_blank">Datenschutzerklärung</a> gelesen und bin mit der Verarbeitung der Daten zum Zweck der Vereinsmitgliedschaft einverstanden. *
+                </span>
+              </label>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn-submit">
+                Anmeldung absenden →
+              </button>
+              <p class="form-hint">* Pflichtfelder. Wir melden uns innerhalb von 2–3 Werktagen.</p>
+            </div>
+
+          </form>
+        </div>
+
+      </div>
+
+      <aside class="sidebar">
+        <div class="sidebar-card sidebar-card--highlight">
+          <div class="sidebar-title">Beitrag Jugend</div>
+          {jugendGruppe?.eintraege.map((e, i) => i === 0
+            ? <>
+                <div class="beitrag-big">{e.preis}</div>
+                <div class="beitrag-sub">{e.zeitraum} · {e.bezeichnung}</div>
+              </>
+            : <div class="beitrag-row">
+                <span>{e.bezeichnung}</span>
+                <strong>{e.preis} / {e.zeitraum}</strong>
+              </div>
+          )}
+          {aufnahmeJugend && (
+            <div class="beitrag-row">
+              <span>Aufnahmegebühr</span>
+              <strong>{aufnahmeJugend.preis} einmalig</strong>
+            </div>
+          )}
+          <a href="/verein/beitraege" class="sidebar-link">→ Alle Beitragssätze</a>
+        </div>
+
+        <div class="sidebar-card">
+          <div class="sidebar-title">Training</div>
+          <p>Trainingszeiten je nach Mannschaft Di–Sa. Details nach der Anmeldung beim Trainer.</p>
+          <a href="/verein/training" class="sidebar-link">→ Trainingszeiten</a>
+        </div>
+
+        <div class="sidebar-card">
+          <div class="sidebar-title">Jugendleiter</div>
+          <p>Bei Fragen zur Jugendanmeldung erreichst du uns direkt:</p>
+          {jugendl?.email && (
+            <Obfuscate email={jugendl.email} label={`→ ${jugendl.email}`} class="sidebar-link" />
+          )}
+          {jugendl?.telefon && jugendl.telefon !== '—' && (
+            <Obfuscate tel={jugendl.telefon} label={`→ ${jugendl.telefon}`} class="sidebar-link" style="margin-top:0.5rem;" />
+          )}
+        </div>
+
+        <div class="sidebar-card">
+          <div class="sidebar-title">Probetraining</div>
+          <p>Kein Problem! Dein Kind kann jederzeit unverbindlich zum Probetraining vorbeikommen.</p>
+          <a href="/verein/ansprechpartner" class="sidebar-link">→ Ansprechpartner</a>
+        </div>
+      </aside>
+
+    </div>
+  </section>
+
+</Base>
+
+<style>
+  .page-hero {
+    background: var(--color-black);
+    border-bottom: 1px solid var(--color-border);
+    padding: 7rem 0 3rem;
+  }
+  .page-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: clamp(3rem, 8vw, 6rem);
+    text-transform: uppercase;
+    line-height: 1;
+    letter-spacing: 1px;
+    margin-bottom: 0.75rem;
+  }
+  .page-title span { color: var(--color-red); }
+  .page-sub { font-size: 1rem; font-weight: 300; color: var(--color-muted); }
+
+  .jugend-section { padding: 4rem 0 5rem; background: var(--color-black); }
+  .jugend-layout {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  .main-col { display: flex; flex-direction: column; gap: 2.5rem; }
+
+  .intro-box {
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-left: 3px solid var(--color-red);
+    border-radius: 3px;
+    padding: 1.5rem;
+  }
+  .intro-icon { font-size: 2rem; flex-shrink: 0; }
+  .intro-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+  }
+  .intro-box p {
+    font-size: 0.96rem;
+    font-weight: 300;
+    color: var(--color-muted);
+    line-height: 1.7;
+  }
+
+  .block-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--color-red);
+    display: inline-block;
+  }
+
+  .teams-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .team-chip {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    padding: 0.5rem 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+  .chip-klasse {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-text);
+  }
+  .chip-jg {
+    font-size: 0.78rem;
+    color: var(--color-muted);
+    font-weight: 300;
+  }
+
+  /* Form */
+  .jugend-form { display: flex; flex-direction: column; gap: 1.5rem; }
+  .form-fieldset {
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    padding: 1.5rem;
+    background: var(--color-surface);
+  }
+  .fieldset-legend {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--color-red);
+    padding: 0 0.5rem;
+  }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .form-group { display: flex; flex-direction: column; gap: 0.4rem; margin-top: 1rem; }
+  .form-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .form-input {
+    background: var(--color-black);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    color: var(--color-text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.96rem;
+    font-weight: 400;
+    padding: 0.65rem 0.9rem;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+  }
+  .form-input:focus { border-color: var(--color-red); }
+  .form-input::placeholder { color: #555; }
+  .form-select { cursor: pointer; }
+  .form-select option { background: #222; }
+  .form-textarea { resize: vertical; min-height: 80px; }
+
+  .form-consent {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    padding: 1.25rem;
+  }
+  .checkbox-label {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 300;
+    color: var(--color-muted);
+    line-height: 1.6;
+  }
+  .checkbox-label a { color: var(--color-red); text-decoration: none; }
+  .checkbox-label a:hover { text-decoration: underline; }
+  .checkbox-input {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    margin-top: 3px;
+    accent-color: var(--color-red);
+    cursor: pointer;
+  }
+  .form-actions { display: flex; flex-direction: column; gap: 0.75rem; }
+  .btn-submit {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: var(--color-red);
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    padding: 0.9rem 2rem;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    align-self: flex-start;
+  }
+  .btn-submit:hover { background: #a50d24; }
+  .btn-submit:active { transform: translateY(1px); }
+  .form-hint {
+    font-size: 0.86rem;
+    font-weight: 300;
+    color: var(--color-muted);
+  }
+
+  /* Sidebar */
+  .sidebar { display: flex; flex-direction: column; gap: 1rem; }
+  .sidebar-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    padding: 1.25rem;
+  }
+  .sidebar-card--highlight {
+    border-color: rgba(200,16,46,0.3);
+  }
+  .sidebar-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 0.84rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--color-red);
+    display: inline-block;
+  }
+  .beitrag-big {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 2.5rem;
+    color: var(--color-red);
+    line-height: 1;
+    margin-bottom: 0.2rem;
+  }
+  .beitrag-sub {
+    font-size: 0.82rem;
+    color: var(--color-muted);
+    font-weight: 300;
+    margin-bottom: 1rem;
+  }
+  .beitrag-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0;
+    border-top: 1px solid var(--color-border);
+    font-size: 0.86rem;
+  }
+  .beitrag-row span { color: var(--color-muted); font-weight: 300; }
+  .beitrag-row strong { color: var(--color-text); font-weight: 600; }
+  .sidebar-card p {
+    font-size: 0.9rem;
+    font-weight: 300;
+    color: var(--color-muted);
+    line-height: 1.65;
+  }
+  .sidebar-link {
+    display: block;
+    margin-top: 0.75rem;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.86rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--color-red);
+    text-decoration: none;
+  }
+  .sidebar-link:hover { text-decoration: underline; }
+
+  @media (max-width: 860px) {
+    .jugend-layout { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+</style>

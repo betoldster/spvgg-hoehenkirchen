@@ -1,0 +1,217 @@
+---
+import Base from '../../layouts/Base.astro'
+import VereinNav from '../../components/VereinNav.astro'
+import { createReader } from '@keystatic/core/reader'
+import keystaticConfig from '../../../keystatic.config'
+
+const reader = createReader(process.cwd(), keystaticConfig)
+const data = await reader.singletons.beitraege.read()
+const beitraege = data?.gruppen ?? []
+---
+
+<Base title="Mitgliedsbeiträge" description="Mitgliedsbeiträge und Aufnahmegebühren der SpVgg Höhenkirchen Fußballabteilung.">
+
+  <div class="page-hero">
+    <div class="container">
+      <p class="section-eyebrow">Mitgliedschaft</p>
+      <h1 class="page-title">Mitglieds<span>beiträge</span></h1>
+      <p class="page-sub">Übersicht der Jahresbeiträge — fair und transparent.</p>
+    </div>
+  </div>
+
+  <VereinNav active="/verein/beitraege" />
+
+  <section class="beitraege-section">
+    <div class="container beitraege-layout">
+
+      <div class="tables-col">
+        {beitraege.map(gruppe => (
+          <div class="gruppe">
+            <h2 class="gruppe-titel">{gruppe.kategorie}</h2>
+            <table class="beitrag-table">
+              <thead>
+                <tr>
+                  <th>Bezeichnung</th>
+                  <th>Beitrag</th>
+                  <th>Zeitraum</th>
+                </tr>
+              </thead>
+              <tbody>
+                {gruppe.eintraege.map(e => (
+                  <tr>
+                    <td class="td-bez">{e.bezeichnung}</td>
+                    <td class="td-preis">{e.preis}</td>
+                    <td class="td-zeit">{e.zeitraum}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))}
+      </div>
+
+      <aside class="sidebar">
+        <div class="sidebar-card">
+          <div class="sidebar-title">Mitglied werden</div>
+          <p>Interesse an einer Mitgliedschaft? Jetzt online anmelden oder direkt Kontakt aufnehmen.</p>
+          <a href="/mitmachen/mitgliedschaft" class="btn-primary" style="display:block;text-align:center;margin-top:1rem;">
+            Jetzt anmelden →
+          </a>
+        </div>
+
+        <div class="sidebar-card">
+          <div class="sidebar-title">Zahlung</div>
+          <ul class="info-list">
+            <li>Jahresbeitrag wird per <strong>SEPA-Lastschrift</strong> eingezogen</li>
+            <li>Fälligkeit: <strong>01. März</strong> eines jeden Jahres</li>
+            <li>Kündigung bis <strong>31. Januar</strong> zum Jahresende</li>
+          </ul>
+        </div>
+
+        <div class="sidebar-card">
+          <div class="sidebar-title">Fragen?</div>
+          <p>Bei Fragen zu Beiträgen wende dich an den Abteilungsleiter.</p>
+          <a href="/verein/ansprechpartner" class="sidebar-link">→ Zu den Ansprechpartnern</a>
+        </div>
+      </aside>
+
+    </div>
+  </section>
+
+</Base>
+
+<style>
+  .page-hero {
+    background: var(--color-black);
+    border-bottom: 1px solid var(--color-border);
+    padding: 7rem 0 3rem;
+  }
+  .page-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: clamp(3rem, 8vw, 6rem);
+    text-transform: uppercase;
+    line-height: 1;
+    letter-spacing: 1px;
+    margin-bottom: 0.75rem;
+  }
+  .page-title span { color: var(--color-red); }
+  .page-sub { font-size: 1rem; font-weight: 300; color: var(--color-muted); }
+
+  .beitraege-section { padding: 4rem 0 5rem; background: var(--color-black); }
+  .beitraege-layout {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  .gruppe { margin-bottom: 2.5rem; }
+  .gruppe-titel {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--color-red);
+    display: inline-block;
+  }
+
+  .beitrag-table { width: 100%; border-collapse: collapse; }
+  .beitrag-table th {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    text-align: left;
+    padding: 0.6rem 1rem;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .beitrag-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 0.96rem;
+  }
+  .beitrag-table tr { background: var(--color-surface); transition: background 0.15s; }
+  .beitrag-table tr:hover { background: #1f1f1f; }
+  .beitrag-table tr:last-child td { border-bottom: none; }
+  .td-bez { color: var(--color-text); font-weight: 400; }
+  .td-preis {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--color-red);
+    white-space: nowrap;
+  }
+  .td-zeit { color: var(--color-muted); font-size: 0.86rem; white-space: nowrap; }
+
+  /* Sidebar */
+  .sidebar { display: flex; flex-direction: column; gap: 1rem; }
+  .sidebar-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    padding: 1.25rem;
+  }
+  .sidebar-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 0.84rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--color-red);
+    display: inline-block;
+  }
+  .sidebar-card p {
+    font-size: 0.9rem;
+    font-weight: 300;
+    color: var(--color-muted);
+    line-height: 1.65;
+  }
+  .info-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .info-list li {
+    font-size: 0.9rem;
+    font-weight: 300;
+    color: var(--color-muted);
+    padding-left: 1rem;
+    position: relative;
+    line-height: 1.5;
+  }
+  .info-list li::before {
+    content: '◆';
+    position: absolute;
+    left: 0;
+    font-size: 0.45rem;
+    color: var(--color-red);
+    top: 5px;
+  }
+  .info-list strong { color: var(--color-text); font-weight: 500; }
+  .sidebar-link {
+    display: inline-block;
+    margin-top: 0.75rem;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.86rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--color-red);
+    text-decoration: none;
+  }
+  .sidebar-link:hover { text-decoration: underline; }
+
+  @media (max-width: 800px) {
+    .beitraege-layout { grid-template-columns: 1fr; }
+  }
+</style>

@@ -1,0 +1,736 @@
+---
+import Base from '../layouts/Base.astro'
+import { createReader } from '@keystatic/core/reader'
+import keystaticConfig from '../../keystatic.config'
+
+const LOGO = '/logo.png'
+
+const reader = createReader(process.cwd(), keystaticConfig)
+
+// Startseite-Daten (Ticker, Stats)
+const startseiteData = await reader.singletons.startseite.read()
+const tickerItems = (startseiteData?.ticker ?? []).map(t => t.text)
+const stats = startseiteData?.stats ?? [
+  { zahl: '18+', label: 'Mannschaften' },
+  { zahl: '2000+', label: 'Mitglieder' },
+  { zahl: '1945', label: 'Gegründet' },
+]
+
+// Spielplan-Daten (letzte 3 Ergebnisse)
+const spielplanData = await reader.singletons.spielplan.read()
+const rawErgebnisse = spielplanData?.ergebnisse ?? []
+const results = rawErgebnisse.slice(0, 3).map(e => ({
+  home:        e.heim,
+  away:        e.gast,
+  scoreHome:   e.heimTor ?? 0,
+  scoreAway:   e.gastTor ?? 0,
+  date:        e.datum,
+  competition: e.liga,
+}))
+
+// News aus Keystatic (featured zuerst, max. 3)
+const allNews = await reader.collections.news.all()
+const newsSorted = allNews.sort((a, b) =>
+  (b.entry.datum ?? '').localeCompare(a.entry.datum ?? '')
+)
+const featured = newsSorted.find(n => n.entry.featured)
+const others   = newsSorted.filter(n => !n.entry.featured).slice(0, 2)
+const news = [
+  ...(featured ? [featured] : []),
+  ...others,
+].map(n => ({
+  slug:      n.slug,
+  title:     n.entry.titel,
+  date:      n.entry.datum
+    ? new Date(n.entry.datum).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
+    : '',
+  kategorie: n.entry.kategorie ?? 'verein',
+  teaser:    n.entry.teaser ?? '',
+  featured:  n.entry.featured ?? false,
+}))
+
+// Hauptsponsor (erste Gruppe mit klasse === 'premium', erste Firma)
+const sponsorenData = await reader.singletons.sponsoren.read()
+const hauptsponsorGruppe = (sponsorenData?.gruppen ?? []).find(g => g.klasse === 'premium')
+const hauptsponsor = hauptsponsorGruppe?.firmen?.[0] ?? null
+
+// Kategorie-Karten (statisch — Labels ändern sich nie)
+const teamKategorien = [
+  { label: 'Herren',   sub: '1. & 2. Mannschaft',    href: '/mannschaften/herren',   count: 2  },
+  { label: 'Senioren', sub: 'Senioren A · B · C',     href: '/mannschaften/senioren', count: 3  },
+  { label: 'Junioren', sub: 'U19 bis U5',              href: '/mannschaften/junioren', count: 20 },
+  { label: 'Damen',    sub: 'Damen & Juniorinnen',     href: '/mannschaften/damen',    count: 3  },
+]
+
+function getResultBadge(r: typeof results[0]) {
+  const spvggHome  = r.home.includes('Höhenkirchen')
+  const spvggScore = spvggHome ? r.scoreHome : r.scoreAway
+  const oppScore   = spvggHome ? r.scoreAway : r.scoreHome
+  if (spvggScore > oppScore) return 'win'
+  if (spvggScore === oppScore) return 'draw'
+  return 'loss'
+}
+---
+
+<Base title="SpVgg Höhenkirchen" description="Spielvereinigung Höhenkirchen — Fußball seit 1945">
+
+  <!-- ── TICKER ── -->
+  <div class="ticker">
+    <span class="ticker-label">Aktuell</span>
+    <div class="ticker-overflow">
+      <div class="ticker-track">
+        {tickerItems.map(item => <span class="ticker-item">{item}</span>)}
+        {tickerItems.map(item => <span class="ticker-item">{item}</span>)}
+      </div>
+    </div>
+  </div>
+
+  <!-- ── HERO ── -->
+  <section class="hero">
+    <div class="hero-diag" aria-hidden="true"></div>
+    <img class="hero-wappen" src={LOGO} alt="" aria-hidden="true" />
+    <div class="hero-stripe" aria-hidden="true"></div>
+
+    <div class="container hero-content">
+      <p class="hero-eyebrow">Spielvereinigung Höhenkirchen</p>
+      <h1 class="hero-title">
+        Unser Verein.<br />
+        <span>Unser Spiel.</span>
+      </h1>
+      <p class="hero-sub">
+        Leidenschaft, Zusammenhalt und Fußball seit 1945.<br />
+        Willkommen bei der Spielvereinigung Höhenkirchen.
+      </p>
+      <div class="hero-actions">
+        <a href="/spielplan" class="btn-primary">Spielplan ansehen</a>
+        <a href="/verein" class="btn-outline">Zum Verein</a>
+      </div>
+    </div>
+
+    <!-- STATS (roter Balken, direkt unter Hero) -->
+    <div class="stats-bar">
+      <div class="container stats-inner">
+        {stats.map(s => (
+          <div class="stat">
+            <span class="stat-num">{s.zahl}</span>
+            <span class="stat-label">{s.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ERGEBNISSE ── -->
+  <section class="results-section">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <p class="section-eyebrow">Letzte Spiele</p>
+          <h2 class="section-title">Ergebnisse</h2>
+        </div>
+        <a href="/spielplan" class="link-all">Alle Spiele</a>
+      </div>
+
+      <div class="results-grid">
+        {results.map(r => {
+          const badge = getResultBadge(r)
+          return (
+            <div class={`result-card result-card--${badge}`}>
+              <div class="result-meta">
+                <span class="result-comp">{r.competition}</span>
+                <span class="result-badge result-badge--{badge}">{badge === 'win' ? 'Sieg' : badge === 'draw' ? 'Unentschieden' : 'Niederlage'}</span>
+                <span class="result-date">{r.date}</span>
+              </div>
+              <div class="result-teams">
+                <span class="result-team result-team--home">{r.home}</span>
+                <span class={`result-score result-score--${badge}`}>{r.scoreHome} : {r.scoreAway}</span>
+                <span class="result-team result-team--away">{r.away}</span>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  </section>
+
+  <!-- ── NEWS ── -->
+  <section class="news-section">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <p class="section-eyebrow">Neuigkeiten</p>
+          <h2 class="section-title">Aktuelle <span class="red">News</span></h2>
+        </div>
+        <a href="/news" class="link-all">Alle News</a>
+      </div>
+
+      <div class="news-grid">
+        {news.filter(n => n.featured).map(n => (
+          <a href={`/news/${n.slug}`} class="news-featured">
+            <div class="news-featured-img">
+              <span class="news-featured-icon">⚽</span>
+              <div class="news-featured-bar"></div>
+            </div>
+            <div class="news-card-body">
+              <span class="news-cat">{n.kategorie}</span>
+              <h3 class="news-featured-title">{n.title}</h3>
+              {n.teaser && <p class="news-excerpt">{n.teaser}</p>}
+              <span class="news-date">{n.date}</span>
+            </div>
+          </a>
+        ))}
+
+        <div class="news-side">
+          {news.filter(n => !n.featured).map(n => (
+            <a href={`/news/${n.slug}`} class="news-small">
+              <div class="news-small-bar"></div>
+              <div class="news-small-body">
+                <span class="news-cat">{n.kategorie}</span>
+                <h3 class="news-small-title">{n.title}</h3>
+                {n.teaser && <p class="news-excerpt">{n.teaser}</p>}
+                <span class="news-date">{n.date}</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── MANNSCHAFTEN ── -->
+  <section class="teams-section">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <p class="section-eyebrow">Der Verein</p>
+          <h2 class="section-title">Unsere <span class="red">Mannschaften</span></h2>
+        </div>
+        <a href="/mannschaften" class="link-all">Alle Teams</a>
+      </div>
+
+      <div class="teams-grid">
+        {teamKategorien.map(t => (
+          <a href={t.href} class="team-card">
+            <div class="team-card-icon">
+              <img src={LOGO} alt="" width="44" height="44" />
+            </div>
+            <div class="team-card-info">
+              <div class="team-card-name">{t.label}</div>
+              <div class="team-card-sub">{t.sub}</div>
+            </div>
+            <div class="team-card-count">{t.count}</div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ── HAUPTSPONSOR ── -->
+  {hauptsponsor && (
+    <div class="hauptsponsor-strip">
+      <div class="container hauptsponsor-inner">
+        <span class="hauptsponsor-label">Hauptsponsor</span>
+        <div class="hauptsponsor-divider" aria-hidden="true"></div>
+        {hauptsponsor.website
+          ? <a href={hauptsponsor.website} target="_blank" rel="noopener" class="hauptsponsor-link">
+              {hauptsponsor.logo
+                ? <img src={hauptsponsor.logo} alt={hauptsponsor.name} class="hauptsponsor-logo" />
+                : <span class="hauptsponsor-name">{hauptsponsor.name}</span>
+              }
+            </a>
+          : <div class="hauptsponsor-link hauptsponsor-link--static">
+              {hauptsponsor.logo
+                ? <img src={hauptsponsor.logo} alt={hauptsponsor.name} class="hauptsponsor-logo" />
+                : <span class="hauptsponsor-name">{hauptsponsor.name}</span>
+              }
+            </div>
+        }
+        <a href="/sponsoren" class="hauptsponsor-more">Partner werden →</a>
+      </div>
+    </div>
+  )}
+
+</Base>
+
+<style>
+  /* ── TICKER ── */
+  .ticker {
+    margin-top: 70px; /* nav height */
+    background: var(--color-red);
+    height: 36px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+  .ticker-label {
+    flex-shrink: 0;
+    background: var(--color-black);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0 1.2rem;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .ticker-overflow { overflow: hidden; flex: 1; }
+  .ticker-track {
+    display: flex;
+    animation: ticker 32s linear infinite;
+    white-space: nowrap;
+  }
+  .ticker-item {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 0.96rem;
+    letter-spacing: 0.5px;
+    color: #fff;
+    padding: 0 2.5rem;
+  }
+  .ticker-item::before { content: "◆ "; font-size: 0.55rem; vertical-align: middle; opacity: 0.7; }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    min-height: calc(100vh - 106px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+    background: var(--color-black);
+  }
+  .hero-wappen {
+    position: absolute;
+    right: -4%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: min(60%, 680px);
+    opacity: 0.06;
+    pointer-events: none;
+    filter: grayscale(1);
+    user-select: none;
+  }
+  .hero-diag {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .hero-diag::before {
+    content: '';
+    position: absolute;
+    top: -10%;
+    left: -5%;
+    width: 50%;
+    height: 130%;
+    background: linear-gradient(150deg, var(--color-red) 0%, transparent 55%);
+    opacity: 0.07;
+    transform: skewX(-6deg);
+  }
+  .hero-stripe {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--color-red);
+  }
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    padding-top: 5rem;
+    padding-bottom: 2rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .hero-eyebrow {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.86rem;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--color-red);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    width: 32px;
+    height: 2px;
+    background: var(--color-red);
+    display: block;
+    flex-shrink: 0;
+  }
+  .hero-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: clamp(3.5rem, 10vw, 7.5rem);
+    line-height: 0.95;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 1.5rem;
+  }
+  .hero-title span { color: var(--color-red); }
+  .hero-sub {
+    font-size: 1rem;
+    font-weight: 300;
+    color: var(--color-muted);
+    max-width: 480px;
+    margin-bottom: 2.5rem;
+    line-height: 1.8;
+  }
+  .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+  /* ── STATS ── */
+  .stats-bar {
+    background: var(--color-red);
+    flex-shrink: 0;
+  }
+  .stats-inner {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .stat {
+    padding: 1.5rem 2rem;
+    text-align: center;
+    border-right: 1px solid rgba(255,255,255,0.18);
+  }
+  .stat:last-child { border-right: none; }
+  .stat-num {
+    display: block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: #fff;
+    line-height: 1;
+    letter-spacing: 1px;
+  }
+  .stat-label {
+    display: block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 0.94rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+    margin-top: 0.3rem;
+  }
+
+  /* ── RESULTS ── */
+  .results-section { padding: 4rem 0; background: var(--color-surface); }
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+  .result-card {
+    background: var(--color-black);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    padding: 1.25rem 1.5rem;
+    transition: border-color 0.2s;
+  }
+  .result-card:hover { border-color: var(--color-muted); }
+  .result-card--win  { border-left: 3px solid var(--color-red); }
+  .result-card--draw { border-left: 3px solid var(--color-muted); }
+  .result-card--loss { border-left: 3px solid #333; }
+  .result-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+  .result-comp {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.90rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .result-date {
+    font-size: 0.86rem;
+    color: var(--color-muted);
+    margin-left: auto;
+  }
+  .result-badge {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.86rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 2px;
+  }
+  .result-badge--win  { background: rgba(200,16,46,0.15); color: var(--color-red); }
+  .result-badge--draw { background: rgba(136,136,136,0.12); color: var(--color-muted); }
+  .result-badge--loss { background: rgba(255,255,255,0.05); color: #555; }
+  .result-teams {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    justify-content: space-between;
+  }
+  .result-team {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    flex: 1;
+    line-height: 1.3;
+  }
+  .result-team--home { text-align: left; }
+  .result-team--away { text-align: right; }
+  .result-score {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 1.9rem;
+    line-height: 1;
+    letter-spacing: 2px;
+    white-space: nowrap;
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    padding: 0.3rem 0.9rem;
+  }
+  .result-score--win { color: var(--color-red); }
+  .result-score--draw { color: var(--color-muted); }
+
+  /* ── NEWS ── */
+  .news-section { padding: 4rem 0; background: var(--color-black); }
+  .news-grid {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 1.5rem;
+  }
+  .news-featured {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.2s;
+  }
+  .news-featured:hover { border-color: var(--color-red); }
+  .news-featured-img {
+    width: 100%;
+    aspect-ratio: 16 / 8;
+    background: linear-gradient(135deg, #1a1a1a 0%, #222 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .news-featured-icon { font-size: 3.5rem; opacity: 0.12; }
+  .news-featured-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--color-red);
+  }
+  .news-card-body { padding: 1.5rem; display: flex; flex-direction: column; flex: 1; }
+  .news-cat {
+    display: inline-block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.90rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--color-text);
+    background: rgba(200,16,46,0.18);
+    border: 1px solid rgba(200,16,46,0.3);
+    padding: 2px 8px;
+    border-radius: 2px;
+    margin-bottom: 0.5rem;
+  }
+  .news-featured-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    text-transform: uppercase;
+    line-height: 1.2;
+    margin-bottom: 0.75rem;
+    flex: 1;
+  }
+  .news-excerpt {
+    font-size: 0.95rem;
+    font-weight: 300;
+    color: var(--color-muted);
+    line-height: 1.65;
+    margin-bottom: 1rem;
+  }
+  .news-date { font-size: 0.86rem; color: #444; }
+  .news-side { display: flex; flex-direction: column; gap: 1.5rem; }
+  .news-small {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    padding: 1.25rem;
+    display: flex;
+    gap: 1rem;
+    text-decoration: none;
+    color: inherit;
+    flex: 1;
+    transition: border-color 0.2s;
+  }
+  .news-small:hover { border-color: var(--color-red); }
+  .news-small-bar { width: 3px; flex-shrink: 0; background: var(--color-red); border-radius: 2px; }
+  .news-small-body { flex: 1; }
+  .news-small-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    text-transform: uppercase;
+    line-height: 1.25;
+    margin-bottom: 0.5rem;
+  }
+
+  /* ── TEAMS ── */
+  .teams-section { padding: 4rem 0; background: var(--color-surface); }
+  .teams-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+  .team-card {
+    background: var(--color-black);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    padding: 1.5rem;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .team-card:hover { border-color: var(--color-red); transform: translateY(-2px); }
+  .team-card-icon {
+    width: 52px;
+    height: 52px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+    padding: 4px;
+  }
+  .team-card-icon img { opacity: 0.7; width: 100%; height: 100%; object-fit: contain; }
+  .team-card-info { flex: 1; }
+  .team-card-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    line-height: 1.1;
+  }
+  .team-card-sub {
+    font-size: 0.86rem;
+    color: var(--color-muted);
+    margin-top: 0.3rem;
+  }
+  .team-card-count {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 1.8rem;
+    color: var(--color-border);
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  /* ── HAUPTSPONSOR ── */
+  .hauptsponsor-strip {
+    background: var(--color-black);
+    border-top: 1px solid var(--color-border);
+    padding: 1.1rem 0;
+  }
+  .hauptsponsor-inner {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  .hauptsponsor-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.68rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .hauptsponsor-divider {
+    width: 1px;
+    height: 20px;
+    background: var(--color-border);
+    flex-shrink: 0;
+  }
+  .hauptsponsor-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+  }
+  .hauptsponsor-link:hover { opacity: 1; }
+  .hauptsponsor-link--static { cursor: default; }
+  .hauptsponsor-logo {
+    height: 28px;
+    width: auto;
+    object-fit: contain;
+    filter: grayscale(1) brightness(1.4);
+  }
+  .hauptsponsor-link:hover .hauptsponsor-logo { filter: none; }
+  .hauptsponsor-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .hauptsponsor-more {
+    margin-left: auto;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--color-border);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+  .hauptsponsor-more:hover { color: var(--color-muted); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 860px) {
+    .news-grid { grid-template-columns: 1fr; }
+    .teams-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 500px) {
+    .stats-inner { grid-template-columns: 1fr; }
+    .stat { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.12); }
+    .stat:last-child { border-bottom: none; }
+    .teams-grid { grid-template-columns: 1fr; }
+    .result-team { font-size: 0.92rem; }
+  }
+</style>

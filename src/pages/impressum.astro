@@ -1,0 +1,156 @@
+---
+import Base from '../layouts/Base.astro'
+import Obfuscate from '../components/Obfuscate.astro'
+import { createReader } from '@keystatic/core/reader'
+import keystaticConfig from '../../keystatic.config'
+
+const reader = createReader(process.cwd(), keystaticConfig)
+const d = await reader.singletons.impressum.read()
+const imp = {
+  vereinsregister_nr: d?.vereinsregister_nr ?? 'VR … (bitte eintragen)',
+  vorstand_name:      d?.vorstand_name      ?? 'Stefan Möhren',
+  abteilungsleiter:   d?.abteilungsleiter   ?? 'Simon Hauser',
+  email:              d?.email              ?? 'info@fussball-hoehenkirchen.de',
+  website:            d?.website            ?? 'www.fussball-hoehenkirchen.de',
+  strasse:            d?.strasse            ?? 'Sportplatzstraße 1',
+  ort:                d?.ort                ?? '85635 Höhenkirchen-Siegertsbrunn',
+}
+---
+
+<Base title="Impressum" description="Impressum der Fußballabteilung SpVgg Höhenkirchen.">
+
+  <div class="page-hero">
+    <div class="container">
+      <p class="section-eyebrow">Rechtliches</p>
+      <h1 class="page-title">Im<span>pressum</span></h1>
+    </div>
+  </div>
+
+  <section class="legal-section">
+    <div class="container legal-content">
+
+      <div class="legal-block">
+        <h2>Angaben gemäß § 5 TMG</h2>
+        <p>
+          <strong>SpVgg Höhenkirchen e.V.</strong><br />
+          Fußballabteilung<br />
+          {imp.strasse}<br />
+          {imp.ort}
+        </p>
+      </div>
+
+      <div class="legal-block">
+        <h2>Vereinsregister</h2>
+        <p>
+          Eingetragen im Vereinsregister beim Amtsgericht München<br />
+          Vereinsregister-Nr.: {imp.vereinsregister_nr}
+        </p>
+      </div>
+
+      <div class="legal-block">
+        <h2>Vertreten durch</h2>
+        <p>
+          <strong>1. Vorstand:</strong> {imp.vorstand_name}<br />
+          <strong>Abteilungsleiter Fußball:</strong> {imp.abteilungsleiter}
+        </p>
+      </div>
+
+      <div class="legal-block">
+        <h2>Kontakt</h2>
+        <p>
+          E-Mail: <Obfuscate email={imp.email} /><br />
+          Website: <a href={`https://${imp.website}`}>{imp.website}</a>
+        </p>
+      </div>
+
+      <div class="legal-block">
+        <h2>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
+        <p>
+          {imp.abteilungsleiter}<br />
+          {imp.strasse}<br />
+          {imp.ort}
+        </p>
+      </div>
+
+      <div class="legal-block">
+        <h2>Haftung für Inhalte</h2>
+        <p>
+          Als Diensteanbieter sind wir gemäß § 7 Abs. 1 TMG für eigene Inhalte auf diesen Seiten nach den
+          allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht
+          verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen
+          zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.
+        </p>
+        <p>
+          Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen
+          Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt
+          der Kenntnis einer konkreten Rechtsverletzung möglich.
+        </p>
+      </div>
+
+      <div class="legal-block">
+        <h2>Haftung für Links</h2>
+        <p>
+          Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben.
+          Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der
+          verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich.
+        </p>
+      </div>
+
+      <div class="legal-block">
+        <h2>Urheberrecht</h2>
+        <p>
+          Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen
+          Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der
+          Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+</Base>
+
+<style>
+  .page-hero {
+    background: var(--color-black);
+    border-bottom: 1px solid var(--color-border);
+    padding: 7rem 0 3rem;
+  }
+  .page-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: clamp(3rem, 8vw, 6rem);
+    text-transform: uppercase;
+    line-height: 1;
+    letter-spacing: 1px;
+    margin-bottom: 0.75rem;
+  }
+  .page-title span { color: var(--color-red); }
+
+  .legal-section { padding: 4rem 0 6rem; background: var(--color-black); }
+  .legal-content { max-width: 720px; }
+
+  .legal-block { margin-bottom: 2.5rem; }
+  .legal-block h2 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--color-text);
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .legal-block p {
+    font-size: 0.96rem;
+    font-weight: 300;
+    color: var(--color-muted);
+    line-height: 1.8;
+    margin-bottom: 0.75rem;
+  }
+  .legal-block p:last-child { margin-bottom: 0; }
+  .legal-block strong { color: var(--color-text); font-weight: 500; }
+  .legal-block a { color: var(--color-red); text-decoration: none; }
+  .legal-block a:hover { text-decoration: underline; }
+</style>

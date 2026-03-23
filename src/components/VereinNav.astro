@@ -1,0 +1,54 @@
+---
+interface Props { active: string }
+const { active } = Astro.props
+
+const links = [
+  { href: '/verein/ueber-uns',      label: 'Über uns & Chronik' },
+  { href: '/verein/ansprechpartner', label: 'Ansprechpartner' },
+  { href: '/verein/training',        label: 'Trainingszeiten' },
+  { href: '/verein/anfahrt',         label: 'Anfahrt' },
+  { href: '/verein/beitraege',       label: 'Mitgliedsbeiträge' },
+]
+---
+
+<div class="verein-nav">
+  <div class="container verein-nav-inner">
+    {links.map(l => (
+      <a href={l.href} class:list={['verein-tab', { active: active === l.href }]}>
+        {l.label}
+      </a>
+    ))}
+  </div>
+</div>
+
+<style>
+  .verein-nav {
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 70px;
+    z-index: 10;
+  }
+  .verein-nav-inner {
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .verein-nav-inner::-webkit-scrollbar { display: none; }
+  .verein-tab {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.86rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 1rem 1.4rem;
+    color: var(--color-muted);
+    text-decoration: none;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    transition: color 0.2s, border-color 0.2s;
+    flex-shrink: 0;
+  }
+  .verein-tab:hover { color: var(--color-text); }
+  .verein-tab.active { color: var(--color-text); border-bottom-color: var(--color-red); }
+</style>

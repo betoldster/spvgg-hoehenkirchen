@@ -1,0 +1,281 @@
+---
+import Base from '../../layouts/Base.astro'
+import Obfuscate from '../../components/Obfuscate.astro'
+import { createReader } from '@keystatic/core/reader'
+import keystaticConfig from '../../../keystatic.config'
+
+export async function getStaticPaths() {
+  return [
+    { params: { kategorie: 'herren'   } },
+    { params: { kategorie: 'senioren' } },
+    { params: { kategorie: 'junioren' } },
+    { params: { kategorie: 'damen'    } },
+  ]
+}
+
+const { kategorie } = Astro.params
+
+const reader = createReader(process.cwd(), keystaticConfig)
+const allTeams = await reader.collections.mannschaften.all()
+const teams = allTeams.filter(
+  t => t.entry.aktiv && t.entry.kategorie === kategorie
+)
+
+const meta: Record<string, { label: string; desc: string; icon: string }> = {
+  herren:   { label: 'Herren',   icon: '⚽', desc: 'Die Aktivenmannschaften der SpVgg Höhenkirchen.' },
+  senioren: { label: 'Senioren', icon: '🏅', desc: 'Fußball für erfahrene Spieler ab 32 Jahren — Spaß und Wettkampf.' },
+  junioren: { label: 'Junioren', icon: '⭐', desc: 'Unsere Nachwuchsabteilung — von den Bambini (U5) bis zur A-Jugend (U19).' },
+  damen:    { label: 'Damen',    icon: '⚽', desc: 'Frauenfußball auf allen Ebenen — Damen und Juniorinnen.' },
+}
+
+const info = meta[kategorie] ?? { label: kategorie, icon: '⚽', desc: '' }
+const LOGO = '/logo.png'
+
+const alleKategorien = ['herren', 'senioren', 'junioren', 'damen']
+---
+
+<Base
+  title={info.label}
+  description={`${info.label}-Mannschaften der SpVgg Höhenkirchen — ${info.desc}`}
+>
+
+  <div class="page-hero">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/mannschaften">Mannschaften</a>
+        <span>›</span>
+        <span>{info.label}</span>
+      </nav>
+      <p class="section-eyebrow">Mannschaften</p>
+      <h1 class="page-title">{info.label}</h1>
+      <p class="page-sub">{info.desc}</p>
+    </div>
+  </div>
+
+  <!-- Kategorie-Tabs -->
+  <div class="tabs-bar">
+    <div class="container tabs-inner">
+      {alleKategorien.map(k => (
+        <a
+          href={`/mannschaften/${k}`}
+          class:list={['tab', { active: k === kategorie }]}
+        >
+          {meta[k]?.label ?? k}
+        </a>
+      ))}
+    </div>
+  </div>
+
+  <!-- Teams Grid -->
+  <section class="teams-section">
+    <div class="container">
+      {teams.length === 0 ? (
+        <p class="empty">Keine aktiven Mannschaften in dieser Kategorie.</p>
+      ) : (
+        <div class="teams-grid">
+          {teams.map(t => (
+            <div class="team-card">
+              <div class="team-card-header">
+                <div class="team-crest">
+                  <img src={LOGO} alt="" width="52" height="52" />
+                </div>
+                <div class="team-badges">
+                  <span class="badge-kat">{info.label}</span>
+                </div>
+              </div>
+
+              <div class="team-name">{t.entry.name}</div>
+              {t.entry.liga && <div class="team-liga">{t.entry.liga}</div>}
+
+              {(t.entry.trainer_name) && (
+                <div class="team-trainer">
+                  <span class="trainer-label">Trainer</span>
+                  <span class="trainer-name">{t.entry.trainer_name}</span>
+                  {t.entry.trainer_email && (
+                    <Obfuscate email={t.entry.trainer_email} class="trainer-email" />
+                  )}
+                </div>
+              )}
+
+              {t.entry.spielplan_url && (
+                <a
+                  href={t.entry.spielplan_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="team-spielplan-btn"
+                >
+                  Spielplan auf fussball.de →
+                </a>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </section>
+
+</Base>
+
+<style>
+  .page-hero {
+    background: var(--color-black);
+    border-bottom: 1px solid var(--color-border);
+    padding: 7rem 0 3rem;
+  }
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.90rem;
+    color: var(--color-muted);
+    margin-bottom: 1rem;
+  }
+  .breadcrumb a {
+    color: var(--color-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .breadcrumb a:hover { color: var(--color-red); }
+  .page-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: clamp(3rem, 8vw, 6rem);
+    text-transform: uppercase;
+    line-height: 1;
+    letter-spacing: 1px;
+    margin-bottom: 0.75rem;
+  }
+  .page-sub { font-size: 1rem; font-weight: 300; color: var(--color-muted); }
+
+  /* Tabs */
+  .tabs-bar {
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 70px;
+    z-index: 10;
+  }
+  .tabs-inner { display: flex; gap: 0; overflow-x: auto; }
+  .tab {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.92rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 1rem 1.5rem;
+    color: var(--color-muted);
+    text-decoration: none;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .tab:hover { color: var(--color-text); }
+  .tab.active { color: var(--color-text); border-bottom-color: var(--color-red); }
+
+  /* Teams */
+  .teams-section { padding: 3.5rem 0 5rem; background: var(--color-black); }
+  .empty { color: var(--color-muted); font-size: 1rem; }
+  .teams-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.25rem;
+  }
+  .team-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .team-card:hover { border-color: var(--color-red); transform: translateY(-2px); }
+  .team-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+  }
+  .team-crest {
+    width: 56px;
+    height: 56px;
+    background: var(--color-black);
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 5px;
+  }
+  .team-crest img { opacity: 0.65; width: 100%; height: 100%; object-fit: contain; }
+  .badge-kat {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.90rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    background: rgba(200,16,46,0.15);
+    color: var(--color-text);
+    padding: 3px 8px;
+    border-radius: 2px;
+  }
+  .team-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 1.25rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    line-height: 1.1;
+  }
+  .team-liga {
+    font-size: 0.90rem;
+    color: var(--color-muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .team-trainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--color-border);
+  }
+  .trainer-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.86rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .trainer-name {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--color-text);
+  }
+  .trainer-email {
+    font-size: 0.90rem;
+    color: var(--color-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .trainer-email:hover { color: var(--color-red); }
+  .team-spielplan-btn {
+    display: inline-block;
+    margin-top: 0.75rem;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 0.86rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--color-red);
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .team-spielplan-btn:hover { opacity: 0.75; }
+</style>

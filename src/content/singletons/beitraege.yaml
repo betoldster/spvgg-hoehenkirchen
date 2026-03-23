@@ -1,0 +1,39 @@
+gruppen:
+  - kategorie: Aktive Mitglieder
+    eintraege:
+      - bezeichnung: Erwachsene (aktiv spielend)
+        preis: "120,00 €"
+        zeitraum: pro Jahr
+      - bezeichnung: Damen (aktiv spielend)
+        preis: "96,00 €"
+        zeitraum: pro Jahr
+  - kategorie: Jugend
+    eintraege:
+      - bezeichnung: Jugend U9 – U19
+        preis: "72,00 €"
+        zeitraum: pro Jahr
+      - bezeichnung: Bambini U5 – U8
+        preis: "60,00 €"
+        zeitraum: pro Jahr
+  - kategorie: Passive Mitglieder
+    eintraege:
+      - bezeichnung: Erwachsene (passiv)
+        preis: "60,00 €"
+        zeitraum: pro Jahr
+      - bezeichnung: Familienbeitrag
+        preis: "180,00 €"
+        zeitraum: pro Jahr
+      - bezeichnung: Schüler / Azubi
+        preis: "36,00 €"
+        zeitraum: pro Jahr
+      - bezeichnung: Ehrenamt / Trainer
+        preis: "0,00 €"
+        zeitraum: beitragsfrei
+  - kategorie: Aufnahmegebühr
+    eintraege:
+      - bezeichnung: Einmalige Aufnahmegebühr (Erwachsene)
+        preis: "15,00 €"
+        zeitraum: einmalig
+      - bezeichnung: Einmalige Aufnahmegebühr (Jugend)
+        preis: "5,00 €"
+        zeitraum: einmalig
