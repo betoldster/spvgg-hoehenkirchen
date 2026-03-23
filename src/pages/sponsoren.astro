@@ -13,8 +13,8 @@ const ap = await reader.singletons.ansprechpartner.read()
 const personen = ap?.personen ?? []
 const zorlu     = personen.find(p => p.funktion.toLowerCase().includes('werbung') || p.funktion.toLowerCase().includes('sponsor'))
 const fanshop   = personen.find(p => p.funktion.toLowerCase().includes('bekleidung') || p.funktion.toLowerCase().includes('fanshop'))
-const emailSponsoring = zorlu?.email   ?? 's.zorlu@fussball-hoehenkirchen.de'
-const emailFanshop    = fanshop?.email ?? 'm.reisnecker@fussball-hoehenkirchen.de'
+const emailSponsoring = zorlu?.email   ?? 'dummy@'
+const emailFanshop    = fanshop?.email ?? 'dummy@'
 ---
 
 <Base title="Sponsoren & Partner" description="Unsere Sponsoren und Partner — gemeinsam für die SpVgg Höhenkirchen.">

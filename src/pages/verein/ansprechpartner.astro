@@ -9,7 +9,7 @@ const reader = createReader(process.cwd(), keystaticConfig)
 const data = await reader.singletons.ansprechpartner.read()
 const personen = data?.personen ?? []
 const impressum = await reader.singletons.impressum.read()
-const allgemeineEmail = impressum?.email ?? 'info@fussball-hoehenkirchen.de'
+const allgemeineEmail = impressum?.email ?? 'dummy@'
 ---
 
 <Base title="Ansprechpartner" description="Deine Ansprechpartner in der Fußballabteilung der SpVgg Höhenkirchen.">

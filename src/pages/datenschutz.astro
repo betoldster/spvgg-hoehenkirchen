@@ -6,7 +6,7 @@ import keystaticConfig from '../../keystatic.config'
 
 const reader = createReader(process.cwd(), keystaticConfig)
 const impressum = await reader.singletons.impressum.read()
-const email = impressum?.email ?? 'info@fussball-hoehenkirchen.de'
+const email = impressum?.email ?? 'dummy@'
 ---
 
 <Base title="Datenschutzerklärung" description="Datenschutzerklärung der Fußballabteilung SpVgg Höhenkirchen gemäß DSGVO.">

@@ -9,7 +9,7 @@ const reader = createReader(process.cwd(), keystaticConfig)
 const beitraegeData = await reader.singletons.beitraege.read()
 const beitraegeGruppen = beitraegeData?.gruppen ?? []
 const impressum = await reader.singletons.impressum.read()
-const allgemeineEmail = impressum?.email ?? 'info@fussball-hoehenkirchen.de'
+const allgemeineEmail = impressum?.email ?? 'dummy@'
 ---
 
 <Base title="Mitglied werden" description="Jetzt Mitglied der Fußballabteilung SpVgg Höhenkirchen werden — einfach online anmelden.">
