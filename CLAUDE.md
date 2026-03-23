@@ -350,7 +350,7 @@ Admin: http://localhost:4321/keystatic
 | Startseite | `index.astro` | Keystatic: `startseite`, `spielplan`, `news`, `sponsoren` |
 | Spielplan | `spielplan.astro` | Keystatic: `spielplan` |
 | Mannschaften Übersicht | `mannschaften/index.astro` | Keystatic: `mannschaften` collection |
-| Mannschaften Kategorie | `mannschaften/[kategorie].astro` | Keystatic: `mannschaften` collection |
+| Mannschaften Kategorie + Team | `mannschaften/[slug].astro` (SSR, dual-mode) | Keystatic: `mannschaften` collection |
 | News Liste | `news/index.astro` | Keystatic: `news` collection |
 | News Artikel | `news/[slug].astro` | Keystatic: `news` collection |
 | Über uns & Chronik | `verein/ueber-uns.astro` | Keystatic: `chronik`, `ueber_uns` |
@@ -363,7 +363,7 @@ Admin: http://localhost:4321/keystatic
 | Bestätigung | `mitmachen/bestaetigung.astro` | statisch |
 | Sponsoren | `sponsoren.astro` | Keystatic: `sponsoren` |
 | Impressum | `impressum.astro` | Keystatic: `impressum` |
-| Datenschutz | `datenschutz.astro` | statisch |
+| Datenschutz | `datenschutz.astro` | Keystatic: `impressum` (Email) |
 
 ### Keystatic Collections & Singletons (vollständig)
 
@@ -458,12 +458,43 @@ Nicht `import { redirect } from 'astro'` — das führt zu 500.
 ### Komponenten
 - `src/components/VereinNav.astro` — Sticky Sub-Nav für /verein/* (prop: `active`)
 - `src/components/MitmachenNav.astro` — Sticky Sub-Nav für /mitmachen/*
+- `src/components/Obfuscate.astro` — Bot-Schutz für E-Mails/Telefonnummern (Base64, JS-Rekonstruktion)
 - `src/layouts/Base.astro` — Globales Layout, Nav, Footer, CSS Custom Properties
+
+### Bot-Schutz (Obfuscate.astro)
+```astro
+<Obfuscate email="name@example.de" label="Name anzeigen" />
+<Obfuscate tel="+49123456" />
+```
+- Werte werden server-seitig Base64-kodiert, JS baut `<a>` Element clientseitig
+- `<noscript>` zeigt `[Bitte JavaScript aktivieren]` — keine Email im HTML-Quelltext
+- Eingesetzt auf: ansprechpartner, mannschaften/[slug], jugend, mitgliedschaft, sponsoren, impressum, datenschutz
+- **Wichtig:** Globales `a { color: inherit; text-decoration: none; }` in Base.astro nötig,
+  da JS-generierte `<a>` Tags keine Astro Scoped-CSS Attribute erhalten
+
+### Mannschafts-Einzelseiten (`mannschaften/[slug].astro`)
+- SSR (`export const prerender = false`) — dual-mode: ein File für Kategorieseiten UND Einzelseiten
+- Routing-Logik: `const isKategorie = ['herren','senioren','junioren','damen'].includes(slug)`
+- Team-Ansicht: 16/7 Teamfoto mit diagonalem Streifen-Platzhalter, bis zu 4 Trainer-Kacheln
+- Trainer-Platzhalter: SVG-Kreis mit Initialen (aus `name.split(' ').map(w=>w[0]).join('')`)
+- Nur ausgefüllte Trainer-Felder werden angezeigt (filter auf `t.name?.trim()`)
+- Trainer-Array im YAML: `trainer: [{name, email, telefon, foto}]` (max. 4 Einträge)
+
+### GitHub Repository
+- Repo: `betoldster/spvgg-hoehenkirchen` (privat)
+- Remote: `git@github.com:betoldster/spvgg-hoehenkirchen.git`
+
+### Nächste Schritte
+1. **Netlify Deployment** — Repo mit Netlify verbinden, automatischer Deploy bei Push
+2. **Cloudflare Access** für `/keystatic` einrichten (nach Deployment)
+3. **Echte Inhalte** eintragen: Trainer-Fotos, Mannschaftsfotos, Sponsor-Logos, News-Artikel
+4. Optional: Spielplan-Widget (Live-Daten von BFV/fussball.de)
 
 ### Start-Prompt für weitere Änderungen
 ```
 Lies die CLAUDE.md — dort ist der komplette Kontext für die SpVgg Höhenkirchen Website.
 Die Website ist vollständig gebaut. Alle Inhalte sind über /keystatic editierbar.
+GitHub: betoldster/spvgg-hoehenkirchen (privat)
 Dev-Server: npm run dev → http://localhost:4321
 Admin: http://localhost:4321/keystatic
 ```

@@ -1,8 +1,12 @@
-name: "1. Mannschaft"
-kategorie: "herren"
-liga: "Kreisklasse"
-trainer_name: ""
-trainer_email: ""
-trainer_telefon: ""
-spielplan_url: ""
+name: 1. Mannschaft
+kategorie: herren
+liga: Kreisklasse
 aktiv: true
+foto: /images/teams/1-mannschaft/foto.jpeg
+trainer:
+  - name: Dieter Bohlen
+    email: super@duper.de
+    telefon: '01777777777'
+  - name: Hans Dampf
+    email: jolo@gaga.de
+    telefon: 1235902-34

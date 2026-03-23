@@ -1,8 +1,9 @@
 name: "Damen 1. Mannschaft"
 kategorie: "damen"
 liga: "A-Klasse"
-trainer_name: ""
-trainer_email: ""
-trainer_telefon: ""
 spielplan_url: ""
 aktiv: true
+trainer:
+  - name: "
+    email: "
+    telefon: '"'

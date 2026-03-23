@@ -44,9 +44,10 @@ const news = [
   date:      n.entry.datum
     ? new Date(n.entry.datum).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
     : '',
-  kategorie: n.entry.kategorie ?? 'verein',
-  teaser:    n.entry.teaser ?? '',
-  featured:  n.entry.featured ?? false,
+  kategorie:  n.entry.kategorie ?? 'verein',
+  teaser:     n.entry.teaser ?? '',
+  featured:   n.entry.featured ?? false,
+  titelbild:  n.entry.titelbild ?? null,
 }))
 
 // Hauptsponsor (erste Gruppe mit klasse === 'premium', erste Firma)
@@ -168,7 +169,10 @@ function getResultBadge(r: typeof results[0]) {
         {news.filter(n => n.featured).map(n => (
           <a href={`/news/${n.slug}`} class="news-featured">
             <div class="news-featured-img">
-              <span class="news-featured-icon">⚽</span>
+              {n.titelbild
+                ? <img src={n.titelbild} alt={n.title} class="news-featured-photo" />
+                : <span class="news-featured-icon">⚽</span>
+              }
               <div class="news-featured-bar"></div>
             </div>
             <div class="news-card-body">
@@ -536,6 +540,14 @@ function getResultBadge(r: typeof results[0]) {
     overflow: hidden;
   }
   .news-featured-icon { font-size: 3.5rem; opacity: 0.12; }
+  .news-featured-photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
   .news-featured-bar {
     position: absolute;
     bottom: 0; left: 0; right: 0;

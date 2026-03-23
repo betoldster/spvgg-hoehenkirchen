@@ -1,8 +1,9 @@
 name: "U11 Junioren I"
 kategorie: "junioren"
 liga: "JG 2015"
-trainer_name: ""
-trainer_email: ""
-trainer_telefon: ""
 spielplan_url: ""
 aktiv: true
+trainer:
+  - name: "
+    email: "
+    telefon: '"'

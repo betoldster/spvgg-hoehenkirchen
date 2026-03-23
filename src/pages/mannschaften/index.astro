@@ -88,23 +88,18 @@ const LOGO = '/logo.png'
             <a href={`/mannschaften/${k.slug}`} class="link-all">Zur Kategorie</a>
           </div>
           <div class="team-list">
-            {k.teams.map(t => (
-              <div class="team-row">
-                <div class="team-row-icon">
-                  <img src={LOGO} alt="" width="32" height="32" />
-                </div>
-                <div class="team-row-name">{t.entry.name}</div>
-                <div class="team-row-liga">{t.entry.liga}</div>
-                {t.entry.trainer_name && (
-                  <div class="team-row-trainer">{t.entry.trainer_name}</div>
-                )}
-                {t.entry.spielplan_url && (
-                  <a href={t.entry.spielplan_url} target="_blank" rel="noopener" class="team-row-link">
-                    Spielplan
-                  </a>
-                )}
-              </div>
-            ))}
+            {k.teams.map(t => {
+              return (
+                <a href={`/mannschaften/${t.slug}`} class="team-row">
+                  <div class="team-row-icon">
+                    <img src={LOGO} alt="" width="32" height="32" />
+                  </div>
+                  <div class="team-row-name">{t.entry.name}</div>
+                  <div class="team-row-liga">{t.entry.liga}</div>
+                  <span class="team-row-link">Details →</span>
+                </a>
+              )
+            })}
           </div>
         </div>
       ))}
@@ -224,7 +219,7 @@ const LOGO = '/logo.png'
   .team-list { display: flex; flex-direction: column; gap: 1px; }
   .team-row {
     display: grid;
-    grid-template-columns: 44px 1fr 140px 160px 80px;
+    grid-template-columns: 44px 1fr 140px 80px;
     align-items: center;
     gap: 1rem;
     padding: 0.75rem 1rem;
@@ -233,7 +228,7 @@ const LOGO = '/logo.png'
     border-radius: 2px;
     transition: border-color 0.15s;
   }
-  .team-row:hover { border-color: var(--color-muted); }
+  .team-row:hover { border-color: var(--color-red); }
   .team-row-icon {
     width: 36px;
     height: 36px;
@@ -276,8 +271,7 @@ const LOGO = '/logo.png'
 
   @media (max-width: 900px) {
     .kat-grid { grid-template-columns: repeat(2, 1fr); }
-    .team-row { grid-template-columns: 44px 1fr 120px; }
-    .team-row-trainer, .team-row-link { display: none; }
+    .team-row { grid-template-columns: 44px 1fr 80px; }
   }
   @media (max-width: 500px) {
     .kat-grid { grid-template-columns: 1fr; }

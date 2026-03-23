@@ -1,8 +1,9 @@
 name: "B-Juniorinnen"
 kategorie: "damen"
 liga: "JG 2008/09/10"
-trainer_name: ""
-trainer_email: ""
-trainer_telefon: ""
 spielplan_url: ""
 aktiv: true
+trainer:
+  - name: "
+    email: "
+    telefon: '"'
