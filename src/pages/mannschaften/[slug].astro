@@ -166,10 +166,23 @@ const pageDesc  = isKategorie
             </div>
           )}
 
+          {team.bfv_widget_id?.trim() && (
+            <div class="bfv-widget-section">
+              <h2 class="section-heading">Spielplan & Tabelle</h2>
+              <div class="bfv-widget-wrap">
+                <div
+                  id={`bfv-${slug}`}
+                  data-bfv-id={team.bfv_widget_id}
+                  data-bfv-div={`bfv-${slug}`}
+                >Laden...</div>
+              </div>
+            </div>
+          )}
+
           {team.spielplan_url && (
             <div class="spielplan-wrap">
               <a href={team.spielplan_url} target="_blank" rel="noopener" class="spielplan-btn">
-                Spielplan & Tabelle auf fussball.de →
+                Spielplan & Tabelle auf bfv.de →
               </a>
             </div>
           )}
@@ -181,6 +194,36 @@ const pageDesc  = isKategorie
 )}
 
 </Base>
+
+<script is:inline>
+  (function () {
+    var container = document.querySelector('[data-bfv-id]')
+    if (!container) return
+
+    var bfvId = container.getAttribute('data-bfv-id')
+    var divId  = container.getAttribute('data-bfv-div')
+
+    var s = document.createElement('script')
+    s.type = 'text/javascript'
+    s.src  = 'https://widget.bfv.de/bfv-widget.min.js'
+    s.onload = function () {
+      BFVWidget.HTML5.zeigeMannschaftKomplett(
+        bfvId,
+        divId,
+        {
+          height: '650',
+          width: '600',
+          selectedTab: BFVWidget.HTML5.mannschaftTabs.wettbewerbTabelle,
+          colorResults: 'undefined',
+          colorNav: 'undefined',
+          colorClubName: 'rgb(0,0,0)',
+          backgroundNav: 'undefined'
+        }
+      )
+    }
+    document.head.appendChild(s)
+  })()
+</script>
 
 <style>
   .page-hero {
@@ -458,6 +501,26 @@ const pageDesc  = isKategorie
   }
   .trainer-contact { font-size: 0.84rem; color: var(--color-muted); transition: color 0.2s; }
   .trainer-contact:hover { color: var(--color-red); }
+
+  /* ── BFV WIDGET ── */
+  .bfv-widget-section {}
+  .section-heading {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--color-muted);
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .bfv-widget-wrap {
+    background: #fff;
+    border-radius: 3px;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+  }
 
   .spielplan-wrap { padding-top: 0.5rem; }
   .spielplan-btn {

@@ -1,43 +1,4 @@
-ergebnisse:
-  - datum: 15.03.2025
-    mannschaft: 1. Mannschaft
-    heim: SpVgg Höhenkirchen
-    gast: TSV Ottobrunn
-    heimTor: 3
-    gastTor: 1
-    liga: Kreisklasse
-  - datum: 08.03.2025
-    mannschaft: 1. Mannschaft
-    heim: FC Deisenhofen II
-    gast: SpVgg Höhenkirchen
-    heimTor: 0
-    gastTor: 2
-    liga: Kreisklasse
-  - datum: 01.03.2025
-    mannschaft: 1. Mannschaft
-    heim: SpVgg Höhenkirchen
-    gast: SV Siegertsbrunn
-    heimTor: 1
-    gastTor: 1
-    liga: Kreisklasse
-  - datum: 22.02.2025
-    mannschaft: 1. Mannschaft
-    heim: SpVgg Höhenkirchen
-    gast: FC Faistenhaar
-    heimTor: 4
-    gastTor: 0
-    liga: Kreisklasse
-  - datum: 15.02.2025
-    mannschaft: 1. Mannschaft
-    heim: TSV Neubiberg
-    gast: SpVgg Höhenkirchen
-    heimTor: 2
-    gastTor: 2
-    liga: Kreisklasse
-saison: 2025/26
-fussball_de_url: >-
-  https://www.bfv.de/vereine/spvgg-hoehenkirchen/00ES8GNH9C00000DVV0AG08LVUPGND5I
-naechsteSpiele:
+spiele:
   - datum: 22.03.2025
     uhrzeit: '15:00'
     mannschaft: 1. Mannschaft
@@ -45,6 +6,7 @@ naechsteSpiele:
     gast: TSV Grünwald
     ort: Sportanlage Höhenkirchen
     liga: Kreisklasse
+    status: kommend
   - datum: 29.03.2025
     uhrzeit: '14:00'
     mannschaft: 1. Mannschaft
@@ -52,6 +14,7 @@ naechsteSpiele:
     gast: SpVgg Höhenkirchen
     ort: Sportplatz Egmating
     liga: Kreisklasse
+    status: kommend
   - datum: 05.04.2025
     uhrzeit: '16:00'
     mannschaft: 1. Mannschaft
@@ -59,6 +22,7 @@ naechsteSpiele:
     gast: SV Perach
     ort: Sportanlage Höhenkirchen
     liga: Kreisklasse
+    status: kommend
   - datum: 12.04.2025
     uhrzeit: '15:30'
     mannschaft: 1. Mannschaft
@@ -66,3 +30,57 @@ naechsteSpiele:
     gast: SpVgg Höhenkirchen
     ort: Sportplatz Brunnthal
     liga: Kreisklasse
+    status: kommend
+  - datum: 15.03.2025
+    uhrzeit: ''
+    mannschaft: 1. Mannschaft
+    heim: SpVgg Höhenkirchen
+    gast: TSV Ottobrunn
+    ort: ''
+    liga: Kreisklasse
+    status: abgeschlossen
+    heimTor: 3
+    gastTor: 1
+  - datum: 08.03.2025
+    uhrzeit: ''
+    mannschaft: 1. Mannschaft
+    heim: FC Deisenhofen II
+    gast: SpVgg Höhenkirchen
+    ort: ''
+    liga: Kreisklasse
+    status: abgeschlossen
+    heimTor: 0
+    gastTor: 2
+  - datum: 01.03.2025
+    uhrzeit: ''
+    mannschaft: 1. Mannschaft
+    heim: SpVgg Höhenkirchen
+    gast: SV Siegertsbrunn
+    ort: ''
+    liga: Kreisklasse
+    status: abgeschlossen
+    heimTor: 1
+    gastTor: 1
+  - datum: 22.02.2025
+    uhrzeit: ''
+    mannschaft: 1. Mannschaft
+    heim: SpVgg Höhenkirchen
+    gast: FC Faistenhaar
+    ort: ''
+    liga: Kreisklasse
+    status: abgeschlossen
+    heimTor: 4
+    gastTor: 0
+  - datum: 15.02.2025
+    uhrzeit: ''
+    mannschaft: 1. Mannschaft
+    heim: TSV Neubiberg
+    gast: SpVgg Höhenkirchen
+    ort: ''
+    liga: Kreisklasse
+    status: abgeschlossen
+    heimTor: 2
+    gastTor: 2
+saison: 2025/26
+fussball_de_url: >-
+  https://www.bfv.de/vereine/spvgg-hoehenkirchen/00ES8GNH9C00000DVV0AG08LVUPGND5I

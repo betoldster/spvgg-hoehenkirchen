@@ -348,7 +348,7 @@ Admin: http://localhost:4321/keystatic
 | Seite | Datei | Datenquelle |
 |---|---|---|
 | Startseite | `index.astro` | Keystatic: `startseite`, `spielplan`, `news`, `sponsoren` |
-| Spielplan | `spielplan.astro` | Keystatic: `spielplan` |
+| Spielplan | `spielplan.astro` | Keystatic: `spielplan` (spiele-Array gefiltert nach status) |
 | Mannschaften Übersicht | `mannschaften/index.astro` | Keystatic: `mannschaften` collection |
 | Mannschaften Kategorie + Team | `mannschaften/[slug].astro` (SSR, dual-mode) | Keystatic: `mannschaften` collection |
 | News Liste | `news/index.astro` | Keystatic: `news` collection |
@@ -364,6 +364,7 @@ Admin: http://localhost:4321/keystatic
 | Sponsoren | `sponsoren.astro` | Keystatic: `sponsoren` |
 | Impressum | `impressum.astro` | Keystatic: `impressum` |
 | Datenschutz | `datenschutz.astro` | Keystatic: `impressum` (Email) |
+| **Spielplan-Kanban** | `admin/spiele.astro` (SSR, standalone) | liest/schreibt `spielplan.yaml` direkt via `yaml`-Package |
 
 ### Keystatic Collections & Singletons (vollständig)
 
@@ -376,7 +377,7 @@ Admin: http://localhost:4321/keystatic
 - `chronik` — 16 Einträge 1939–2022 (Timeline auf Über-uns-Seite)
 - `ueber_uns` — Intro-Textabsätze + Kennzahlen (1945, 2000+, 10+, 28+)
 - `startseite` — Ticker-Meldungen, Stats-Zahlen (Startseite)
-- `spielplan` — Ergebnisse + nächste Spiele (Spielplan-Seite + Startseite)
+- `spielplan` — **einheitliches `spiele`-Array** mit `status`-Feld (`kommend`/`abgeschlossen`); Seiten filtern selbst. Felder: datum, uhrzeit, mannschaft, heim, gast, ort, liga, status, heimTor, gastTor. Auch editierbar über Kanban `/admin/spiele`.
 - `trainingszeiten` — Platzzeiten (11 Zeilen) + Hallenzeiten (7 Zeilen)
 - `beitraege` — 4 Gruppen mit Beitragssätzen (verschachtelter Array)
 - `anfahrt` — Adresse + 3 Anfahrtsoptionen
@@ -461,6 +462,9 @@ Nicht `import { redirect } from 'astro'` — das führt zu 500.
 - `src/components/Obfuscate.astro` — Bot-Schutz für E-Mails/Telefonnummern (Base64, JS-Rekonstruktion)
 - `src/layouts/Base.astro` — Globales Layout, Nav, Footer, CSS Custom Properties
 
+### API-Endpunkte
+- `src/pages/api/spiele.ts` — GET/POST für das Spielplan-Kanban; liest und schreibt `src/content/singletons/spielplan.yaml` direkt via `yaml`-Package (in `node_modules` verfügbar als transitive Keystatic-Dep)
+
 ### Bot-Schutz (Obfuscate.astro)
 ```astro
 <Obfuscate email="name@example.de" label="Name anzeigen" />
@@ -479,16 +483,41 @@ Nicht `import { redirect } from 'astro'` — das führt zu 500.
 - Trainer-Platzhalter: SVG-Kreis mit Initialen (aus `name.split(' ').map(w=>w[0]).join('')`)
 - Nur ausgefüllte Trainer-Felder werden angezeigt (filter auf `t.name?.trim()`)
 - Trainer-Array im YAML: `trainer: [{name, email, telefon, foto}]` (max. 4 Einträge)
+- **BFV-Widget**: Feld `bfv_widget_id` in Keystatic → rendert BFV-Vereins-Widget unterhalb Trainer. Widget-Script wird von `widget.bfv.de/bfv-widget.min.js` geladen. Nur sichtbar wenn ID eingetragen. Weiße Widget-Box (BFV-Widget erwartet hellen Hintergrund).
+
+### Spielplan-Kanban (`admin/spiele.astro`)
+- Eigenständige Admin-Seite (kein Base.astro-Layout), dunkles Design-System identisch zur Website
+- Zwei Spalten: **Kommend** (blau) | **Abgeschlossen** (rot)
+- Drag & Drop zwischen Spalten via HTML5 API
+- Beim Ziehen/Klicken nach „Abgeschlossen" → Score-Dialog öffnet sich automatisch
+- Beim Zurückschieben → Score wird gelöscht
+- Edit-Dialog für alle Felder, Create-Dialog für neue Spiele
+- Auto-Speichern nach jeder Aktion (POST → `/api/spiele`), Toast-Bestätigung
+- Erreichbar unter `/admin/spiele`, Link im Footer der Website
+- **Muss in Cloudflare Access ebenfalls geschützt werden**: Pfad `/admin/*` zur Policy hinzufügen
 
 ### GitHub Repository
 - Repo: `betoldster/spvgg-hoehenkirchen` (privat)
 - Remote: `git@github.com:betoldster/spvgg-hoehenkirchen.git`
 
 ### Nächste Schritte
+
+**Deployment:**
 1. **Netlify Deployment** — Repo mit Netlify verbinden, automatischer Deploy bei Push
-2. **Cloudflare Access** für `/keystatic` einrichten (nach Deployment)
-3. **Echte Inhalte** eintragen: Trainer-Fotos, Mannschaftsfotos, Sponsor-Logos, News-Artikel
-4. Optional: Spielplan-Widget (Live-Daten von BFV/fussball.de)
+2. **Cloudflare Access** für `/keystatic` UND `/admin/*` einrichten (nach Deployment) — beide Pfade in die Access-Policy eintragen!
+
+**Echte Inhalte eintragen:**
+3. Trainer-Fotos hochladen (via Keystatic → Mannschaft bearbeiten)
+4. Mannschaftsfotos hochladen
+5. Sponsor-Logos hochladen + echte Sponsoren eintragen
+6. News-Artikel schreiben
+7. BFV Widget-IDs eintragen: Für jede Mannschaft die ID aus dem BFV-Widget-Code in das Keystatic-Feld `BFV Widget ID` eintragen (Format: `016PM7QJH8000000VV0AG80NVUT1FLRU`)
+8. Spielplan aktuell halten über `/admin/spiele` (Kanban-Board)
+
+**Optional / Ausbau:**
+9. Saison-Feld im Spielplan-Kanban editierbar machen (aktuell nur in Keystatic)
+10. Spielplan-Spalten auf `/spielplan` sortierbar nach Datum machen
+11. Mehrere Mannschaften im Spielplan anzeigen (aktuell nur 1. Mannschaft im Slider auf Startseite)
 
 ### Start-Prompt für weitere Änderungen
 ```
@@ -532,9 +561,11 @@ ist kein Schutz aktiv (nur du entwickelst lokal, kein Problem).
 1. Kostenlosen Cloudflare-Account erstellen (cloudflare.com)
 2. Domain bei Cloudflare eintragen (oder Netlify-Subdomain)
 3. Zero Trust → Access → Applications → "Add Application"
-4. URL-Pfad: `deinedomain.de/keystatic*` schützen
+4. **Zwei Pfade schützen:**
+   - `deinedomain.de/keystatic*` (Keystatic CMS)
+   - `deinedomain.de/admin/*` (Spielplan-Kanban + künftige Admin-Tools)
 5. Policy: "Emails" → obige Adressen eintragen
-6. Fertig — Cloudflare schützt die Route automatisch
+6. Fertig — Cloudflare schützt beide Routen automatisch
 
 ### Nutzer hinzufügen / entfernen
 

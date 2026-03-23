@@ -18,7 +18,7 @@ const stats = startseiteData?.stats ?? [
 
 // Spielplan-Daten (letzte 3 Ergebnisse)
 const spielplanData = await reader.singletons.spielplan.read()
-const rawErgebnisse = spielplanData?.ergebnisse ?? []
+const rawErgebnisse = (spielplanData?.spiele ?? []).filter(s => s.status === 'abgeschlossen')
 const results = rawErgebnisse.slice(0, 3).map(e => ({
   home:        e.heim,
   away:        e.gast,
@@ -231,27 +231,41 @@ function getResultBadge(r: typeof results[0]) {
 
   <!-- ── HAUPTSPONSOR ── -->
   {hauptsponsor && (
-    <div class="hauptsponsor-strip">
+    <section class="hauptsponsor-section">
       <div class="container hauptsponsor-inner">
-        <span class="hauptsponsor-label">Hauptsponsor</span>
-        <div class="hauptsponsor-divider" aria-hidden="true"></div>
-        {hauptsponsor.website
-          ? <a href={hauptsponsor.website} target="_blank" rel="noopener" class="hauptsponsor-link">
-              {hauptsponsor.logo
-                ? <img src={hauptsponsor.logo} alt={hauptsponsor.name} class="hauptsponsor-logo" />
-                : <span class="hauptsponsor-name">{hauptsponsor.name}</span>
-              }
-            </a>
-          : <div class="hauptsponsor-link hauptsponsor-link--static">
-              {hauptsponsor.logo
-                ? <img src={hauptsponsor.logo} alt={hauptsponsor.name} class="hauptsponsor-logo" />
-                : <span class="hauptsponsor-name">{hauptsponsor.name}</span>
-              }
-            </div>
-        }
-        <a href="/sponsoren" class="hauptsponsor-more">Partner werden →</a>
+
+        <div class="hauptsponsor-left">
+          <p class="hauptsponsor-eyebrow">Unser Hauptsponsor</p>
+          <p class="hauptsponsor-sub">Wir danken unserem Hauptsponsor<br />für die langjährige Unterstützung.</p>
+        </div>
+
+        <div class="hauptsponsor-center">
+          {hauptsponsor.website
+            ? <a href={hauptsponsor.website} target="_blank" rel="noopener" class="hauptsponsor-link">
+                {hauptsponsor.logo
+                  ? <img src={hauptsponsor.logo} alt={hauptsponsor.name} class="hauptsponsor-logo" />
+                  : <span class="hauptsponsor-name-big">{hauptsponsor.name}</span>
+                }
+                {hauptsponsor.logo && <span class="hauptsponsor-name-big">{hauptsponsor.name}</span>}
+                {hauptsponsor.branche && <span class="hauptsponsor-branche">{hauptsponsor.branche}</span>}
+              </a>
+            : <div class="hauptsponsor-link hauptsponsor-link--static">
+                {hauptsponsor.logo
+                  ? <img src={hauptsponsor.logo} alt={hauptsponsor.name} class="hauptsponsor-logo" />
+                  : <span class="hauptsponsor-name-big">{hauptsponsor.name}</span>
+                }
+                {hauptsponsor.logo && <span class="hauptsponsor-name-big">{hauptsponsor.name}</span>}
+                {hauptsponsor.branche && <span class="hauptsponsor-branche">{hauptsponsor.branche}</span>}
+              </div>
+          }
+        </div>
+
+        <div class="hauptsponsor-right">
+          <a href="/sponsoren" class="hauptsponsor-cta">Partner werden →</a>
+        </div>
+
       </div>
-    </div>
+    </section>
   )}
 
 </Base>
@@ -669,74 +683,109 @@ function getResultBadge(r: typeof results[0]) {
   }
 
   /* ── HAUPTSPONSOR ── */
-  .hauptsponsor-strip {
-    background: var(--color-black);
-    border-top: 1px solid var(--color-border);
-    padding: 1.1rem 0;
+  .hauptsponsor-section {
+    background: var(--color-surface);
+    border-top: 3px solid var(--color-red);
+    border-bottom: 1px solid var(--color-border);
+    padding: 3.5rem 0;
   }
   .hauptsponsor-inner {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    gap: 1.25rem;
+    gap: 3rem;
   }
-  .hauptsponsor-label {
+  .hauptsponsor-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .hauptsponsor-eyebrow {
     font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 700;
-    font-size: 0.68rem;
-    letter-spacing: 2px;
+    font-weight: 800;
+    font-size: 0.75rem;
+    letter-spacing: 3px;
     text-transform: uppercase;
-    color: var(--color-muted);
-    white-space: nowrap;
-    flex-shrink: 0;
+    color: var(--color-red);
   }
-  .hauptsponsor-divider {
-    width: 1px;
-    height: 20px;
-    background: var(--color-border);
-    flex-shrink: 0;
+  .hauptsponsor-sub {
+    font-size: 0.92rem;
+    font-weight: 300;
+    color: var(--color-muted);
+    line-height: 1.6;
+  }
+  .hauptsponsor-center {
+    display: flex;
+    justify-content: center;
   }
   .hauptsponsor-link {
     display: flex;
+    flex-direction: column;
     align-items: center;
+    gap: 0.6rem;
     text-decoration: none;
-    opacity: 0.7;
     transition: opacity 0.2s;
   }
-  .hauptsponsor-link:hover { opacity: 1; }
+  .hauptsponsor-link:hover { opacity: 0.8; }
   .hauptsponsor-link--static { cursor: default; }
   .hauptsponsor-logo {
-    height: 28px;
+    height: 72px;
     width: auto;
+    max-width: 240px;
     object-fit: contain;
-    filter: grayscale(1) brightness(1.4);
+    filter: grayscale(0.3) brightness(1.1);
+    transition: filter 0.3s;
   }
   .hauptsponsor-link:hover .hauptsponsor-logo { filter: none; }
-  .hauptsponsor-name {
+  .hauptsponsor-name-big {
     font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 700;
-    font-size: 0.95rem;
-    letter-spacing: 0.5px;
+    font-weight: 800;
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
     text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--color-text);
+    text-align: center;
+  }
+  .hauptsponsor-branche {
+    font-size: 0.82rem;
+    font-weight: 400;
     color: var(--color-muted);
+    text-align: center;
+    letter-spacing: 0.5px;
   }
-  .hauptsponsor-more {
-    margin-left: auto;
+  .hauptsponsor-right {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  .hauptsponsor-cta {
     font-family: 'Barlow Condensed', sans-serif;
     font-weight: 700;
-    font-size: 0.72rem;
-    letter-spacing: 1.5px;
+    font-size: 0.9rem;
+    letter-spacing: 2px;
     text-transform: uppercase;
-    color: var(--color-border);
-    text-decoration: none;
-    transition: color 0.2s;
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    padding: 0.7rem 1.5rem;
+    border-radius: 2px;
     white-space: nowrap;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
   }
-  .hauptsponsor-more:hover { color: var(--color-muted); }
+  .hauptsponsor-cta:hover {
+    border-color: var(--color-red);
+    color: var(--color-red);
+  }
 
   /* ── RESPONSIVE ── */
   @media (max-width: 860px) {
     .news-grid { grid-template-columns: 1fr; }
     .teams-grid { grid-template-columns: repeat(2, 1fr); }
+    .hauptsponsor-inner {
+      grid-template-columns: 1fr;
+      text-align: center;
+      gap: 2rem;
+    }
+    .hauptsponsor-right { justify-content: center; }
   }
   @media (max-width: 500px) {
     .stats-inner { grid-template-columns: 1fr; }

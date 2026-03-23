@@ -35,7 +35,8 @@ export default config({
                         }),
                         { label: 'Trainer (max. 4)', itemLabel: (t) => t.fields.name.value || '(unbenannt)' },
                       ),
-        spielplan_url: fields.url({ label: 'Spielplan URL (fussball.de)' }),
+        spielplan_url: fields.url({ label: 'Spielplan URL (bfv.de)' }),
+        bfv_widget_id: fields.text({ label: 'BFV Widget ID (Mannschafts-ID, z.B. 016PM7QJH8000000VV0AG80NVUT1FLRU)' }),
         beschreibung:  fields.document({ label: 'Beschreibung' }),
       },
     }),
@@ -95,41 +96,39 @@ export default config({
       label: 'Spielplan & Ergebnisse',
       path: 'src/content/singletons/spielplan',
       schema: {
-        ergebnisse: fields.array(
+        spiele: fields.array(
           fields.object({
             datum:      fields.text({ label: 'Datum (TT.MM.JJJJ)' }),
-            mannschaft: fields.text({ label: 'Unsere Mannschaft' }),
-            heim:       fields.text({ label: 'Heimmannschaft' }),
-            gast:       fields.text({ label: 'Gastmannschaft' }),
-            heimTor:    fields.integer({ label: 'Tore Heim' }),
-            gastTor:    fields.integer({ label: 'Tore Gast' }),
-            liga:       fields.text({ label: 'Liga / Wettbewerb' }),
-          }),
-          {
-            label: 'Ergebnisse',
-            itemLabel: (e) => {
-              const score = `${e.fields.heimTor.value ?? '?'}:${e.fields.gastTor.value ?? '?'}`
-              return `${e.fields.datum.value} · ${e.fields.heim.value} ${score} ${e.fields.gast.value}`
-            },
-          },
-        ),
-        saison:         fields.text({ label: 'Saison (z.B. 2025/26)' }),
-        fussball_de_url: fields.url({ label: 'fussball.de Link (für "alle Spiele"-Button)' }),
-        naechsteSpiele: fields.array(
-          fields.object({
-            datum:      fields.text({ label: 'Datum (TT.MM.JJJJ)' }),
-            uhrzeit:    fields.text({ label: 'Uhrzeit' }),
+            uhrzeit:    fields.text({ label: 'Uhrzeit (leer = unbekannt)' }),
             mannschaft: fields.text({ label: 'Unsere Mannschaft' }),
             heim:       fields.text({ label: 'Heimmannschaft' }),
             gast:       fields.text({ label: 'Gastmannschaft' }),
             ort:        fields.text({ label: 'Spielort' }),
             liga:       fields.text({ label: 'Liga / Wettbewerb' }),
+            status:     fields.select({
+                          label: 'Status',
+                          options: [
+                            { label: '📅 Kommend', value: 'kommend' },
+                            { label: '✅ Abgeschlossen', value: 'abgeschlossen' },
+                          ],
+                          defaultValue: 'kommend',
+                        }),
+            heimTor:    fields.integer({ label: 'Tore Heim (nur bei Abgeschlossen)' }),
+            gastTor:    fields.integer({ label: 'Tore Gast (nur bei Abgeschlossen)' }),
           }),
           {
-            label: 'Nächste Spiele',
-            itemLabel: (e) => `${e.fields.datum.value} ${e.fields.uhrzeit.value} · ${e.fields.heim.value} vs ${e.fields.gast.value}`,
+            label: 'Spiele',
+            itemLabel: (e) => {
+              const icon = e.fields.status.value === 'abgeschlossen' ? '✅' : '📅'
+              const score = e.fields.status.value === 'abgeschlossen'
+                ? ` ${e.fields.heimTor.value ?? '?'}:${e.fields.gastTor.value ?? '?'}`
+                : (e.fields.uhrzeit.value ? ` · ${e.fields.uhrzeit.value}` : '')
+              return `${icon} ${e.fields.datum.value}${score} · ${e.fields.heim.value} vs ${e.fields.gast.value}`
+            },
           },
         ),
+        saison:          fields.text({ label: 'Saison (z.B. 2025/26)' }),
+        fussball_de_url: fields.url({ label: 'bfv.de Link (für "alle Spiele"-Button)' }),
       },
     }),
 

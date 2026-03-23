@@ -1,0 +1,838 @@
+---
+export const prerender = false
+
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { parse } from 'yaml'
+
+const YAML_PATH = join(process.cwd(), 'src/content/singletons/spielplan.yaml')
+const raw = parse(readFileSync(YAML_PATH, 'utf-8'))
+const initialSpiele = JSON.stringify(raw.spiele ?? [])
+const saison = raw.saison ?? ''
+---
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Spielplan verwalten — SpVgg Höhenkirchen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    a { color: inherit; text-decoration: none; }
+
+    :root {
+      --red:     #C8102E;
+      --black:   #111111;
+      --surface: #1C1C1C;
+      --surface2: #242424;
+      --border:  #2E2E2E;
+      --text:    #EDECEA;
+      --muted:   #ABABAB;
+    }
+
+    body {
+      background: var(--black);
+      color: var(--text);
+      font-family: 'Barlow', sans-serif;
+      font-size: 15px;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    .admin-header {
+      background: var(--surface);
+      border-bottom: 2px solid var(--red);
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .admin-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800;
+      font-size: 1.25rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    .admin-title span { color: var(--red); }
+    .header-right { display: flex; align-items: center; gap: 0.75rem; }
+    .saison-badge {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 3px 10px;
+      border-radius: 2px;
+    }
+    .btn-primary {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      background: var(--red);
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1.1rem;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn-primary:hover { opacity: 0.85; }
+
+    .back-link {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--text); }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: #1a3a1a;
+      border: 1px solid #2d6b2d;
+      color: #7bcf7b;
+      font-size: 0.88rem;
+      padding: 0.6rem 1.1rem;
+      border-radius: 3px;
+      z-index: 9999;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ── KANBAN ── */
+    .kanban-wrap {
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      align-items: start;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .kanban-col {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .kanban-col.drag-over { border-color: var(--red); }
+
+    .col-header {
+      padding: 0.9rem 1.1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .col-header--kommend   { border-top: 3px solid #3a6ea5; }
+    .col-header--abgeschlossen { border-top: 3px solid var(--red); }
+
+    .col-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    .col-badge {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.75rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1px 8px;
+      color: var(--muted);
+    }
+
+    .col-cards {
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      min-height: 120px;
+    }
+    .col-empty {
+      color: var(--muted);
+      font-size: 0.88rem;
+      text-align: center;
+      padding: 2rem 1rem;
+      border: 1px dashed var(--border);
+      border-radius: 3px;
+    }
+
+    /* ── KARTE ── */
+    .kcard {
+      background: var(--black);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 0.85rem 1rem;
+      cursor: grab;
+      transition: border-color 0.15s, opacity 0.15s;
+      user-select: none;
+    }
+    .kcard:hover { border-color: #444; }
+    .kcard.dragging { opacity: 0.4; cursor: grabbing; }
+    .kcard.drag-placeholder {
+      border: 2px dashed var(--red);
+      background: rgba(200,16,46,0.05);
+      height: 80px;
+    }
+
+    .kcard-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.55rem;
+      gap: 0.5rem;
+    }
+    .kcard-liga {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .kcard-datum {
+      font-size: 0.82rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .kcard-teams {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.3rem;
+    }
+    .kcard-team {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      flex: 1;
+      line-height: 1.2;
+      color: var(--muted);
+    }
+    .kcard-team.spvgg { color: var(--text); font-weight: 800; }
+    .kcard-team.away  { text-align: right; }
+
+    .kcard-vs {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.8rem;
+      color: var(--border);
+      flex-shrink: 0;
+    }
+    .kcard-score {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      letter-spacing: 2px;
+      flex-shrink: 0;
+      padding: 0.1rem 0.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+    }
+    .kcard-score.win  { color: var(--red); }
+    .kcard-score.draw { color: var(--muted); }
+    .kcard-score.loss { color: #555; }
+
+    .kcard-meta {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 0.6rem;
+    }
+
+    .kcard-actions {
+      display: flex;
+      gap: 0.4rem;
+      margin-top: 0.65rem;
+      flex-wrap: wrap;
+    }
+    .kbtn {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.72rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      padding: 3px 9px;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+    .kbtn:hover { color: var(--text); border-color: #555; }
+    .kbtn-result { color: var(--red); border-color: rgba(200,16,46,0.3); }
+    .kbtn-result:hover { background: var(--red); color: #fff; border-color: var(--red); }
+    .kbtn-back  { color: #3a6ea5; border-color: rgba(58,110,165,0.3); }
+    .kbtn-back:hover { background: rgba(58,110,165,0.15); color: #6aaad5; border-color: #3a6ea5; }
+    .kbtn-delete { margin-left: auto; color: #555; }
+    .kbtn-delete:hover { color: var(--red); border-color: rgba(200,16,46,0.3); }
+
+    /* ── DIALOG ── */
+    dialog {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 0;
+      color: var(--text);
+      width: min(480px, 95vw);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    dialog::backdrop { background: rgba(0,0,0,0.7); }
+
+    .dlg-header {
+      padding: 1.2rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .dlg-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .dlg-close {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 2px 6px;
+    }
+    .dlg-close:hover { color: var(--text); }
+
+    .dlg-body { padding: 1.25rem 1.5rem; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+    }
+    .form-grid .full { grid-column: 1 / -1; }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      font-size: 0.78rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    input, select, textarea {
+      background: var(--black);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--text);
+      font-family: 'Barlow', sans-serif;
+      font-size: 0.9rem;
+      padding: 0.5rem 0.7rem;
+      width: 100%;
+      transition: border-color 0.15s;
+    }
+    input:focus, select:focus { outline: none; border-color: var(--red); }
+    select option { background: var(--surface); }
+
+    .score-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .score-row input { text-align: center; }
+    .score-row span {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800;
+      font-size: 1.5rem;
+      color: var(--muted);
+    }
+
+    .score-hint {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .dlg-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.6rem;
+    }
+    .btn-cancel-dlg {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 0.45rem 1rem;
+      border-radius: 2px;
+      cursor: pointer;
+    }
+    .btn-cancel-dlg:hover { color: var(--text); border-color: #555; }
+
+    /* ── SCORE DIALOG ── */
+    #dlg-score .dlg-body {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .score-game-info {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: center;
+      color: var(--muted);
+    }
+    .score-big {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
+    .score-big input {
+      width: 80px;
+      text-align: center;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800;
+      font-size: 2rem;
+      padding: 0.5rem;
+    }
+    .score-big span {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800;
+      font-size: 2rem;
+      color: var(--muted);
+    }
+
+    @media (max-width: 700px) {
+      .kanban-wrap { grid-template-columns: 1fr; padding: 1rem; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-grid .full { grid-column: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="admin-header">
+  <div class="admin-title">Spielplan <span>verwalten</span></div>
+  <div class="header-right">
+    {saison && <span class="saison-badge">Saison {saison}</span>}
+    <a href="/keystatic" class="back-link">← Keystatic</a>
+    <a href="/spielplan" class="back-link" style="margin-right:0.5rem">← Website</a>
+    <button class="btn-primary" id="btn-new">+ Neues Spiel</button>
+  </div>
+</div>
+
+<div class="kanban-wrap">
+  <div class="kanban-col" id="col-kommend">
+    <div class="col-header col-header--kommend">
+      <span class="col-title">Kommend</span>
+      <span class="col-badge" id="badge-kommend">0</span>
+    </div>
+    <div class="col-cards" id="cards-kommend"></div>
+  </div>
+
+  <div class="kanban-col" id="col-abgeschlossen">
+    <div class="col-header col-header--abgeschlossen">
+      <span class="col-title">Abgeschlossen</span>
+      <span class="col-badge" id="badge-abgeschlossen">0</span>
+    </div>
+    <div class="col-cards" id="cards-abgeschlossen"></div>
+  </div>
+</div>
+
+<!-- Score-Dialog -->
+<dialog id="dlg-score">
+  <div class="dlg-header">
+    <span class="dlg-title">Ergebnis eintragen</span>
+    <button class="dlg-close" id="score-close">✕</button>
+  </div>
+  <div class="dlg-body">
+    <div class="score-game-info" id="score-game-info"></div>
+    <div class="score-big">
+      <input type="number" id="score-heim" min="0" max="99" value="0" />
+      <span>:</span>
+      <input type="number" id="score-gast" min="0" max="99" value="0" />
+    </div>
+  </div>
+  <div class="dlg-footer">
+    <button class="btn-cancel-dlg" id="score-cancel">Abbrechen</button>
+    <button class="btn-primary" id="score-confirm">Bestätigen</button>
+  </div>
+</dialog>
+
+<!-- Edit/Create-Dialog -->
+<dialog id="dlg-edit">
+  <div class="dlg-header">
+    <span class="dlg-title" id="edit-title">Spiel bearbeiten</span>
+    <button class="dlg-close" id="edit-close">✕</button>
+  </div>
+  <div class="dlg-body">
+    <form id="form-spiel" autocomplete="off">
+      <div class="form-grid">
+        <label>Datum
+          <input type="text" name="datum" placeholder="TT.MM.JJJJ" required />
+        </label>
+        <label>Uhrzeit
+          <input type="text" name="uhrzeit" placeholder="15:30" />
+        </label>
+        <label class="full">Unsere Mannschaft
+          <input type="text" name="mannschaft" placeholder="1. Mannschaft" />
+        </label>
+        <label>Heimmannschaft
+          <input type="text" name="heim" required />
+        </label>
+        <label>Gastmannschaft
+          <input type="text" name="gast" required />
+        </label>
+        <label class="full">Spielort
+          <input type="text" name="ort" />
+        </label>
+        <label>Liga / Wettbewerb
+          <input type="text" name="liga" />
+        </label>
+        <label>Status
+          <select name="status">
+            <option value="kommend">📅 Kommend</option>
+            <option value="abgeschlossen">✅ Abgeschlossen</option>
+          </select>
+        </label>
+        <div class="full" id="score-fields-wrap">
+          <p class="score-hint">Ergebnis (nur bei Status "Abgeschlossen")</p>
+          <div class="score-row">
+            <label style="flex:1">Tore Heim
+              <input type="number" name="heimTor" min="0" max="99" />
+            </label>
+            <span style="margin-top:1.4rem;font-size:1.4rem;font-weight:800;color:var(--muted)">:</span>
+            <label style="flex:1">Tore Gast
+              <input type="number" name="gastTor" min="0" max="99" />
+            </label>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="dlg-footer">
+    <button class="btn-cancel-dlg" id="edit-cancel">Abbrechen</button>
+    <button class="btn-primary" id="edit-save">Speichern</button>
+  </div>
+</dialog>
+
+<div class="toast" id="toast">Gespeichert ✓</div>
+
+<script is:inline define:vars={{ initialSpiele }}>
+  const API = '/api/spiele'
+  let spiele = JSON.parse(initialSpiele)
+  let dragSrcIdx = null
+  let pendingMoveIdx = null
+
+  // HTML-Escaping für user-controlled Daten in innerHTML
+  function esc(s) {
+    return String(s ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+  }
+
+  // ── RENDER ──────────────────────────────────────────────
+  function render() {
+    const kommend      = spiele.filter(s => s.status === 'kommend')
+    const abgeschlossen = spiele.filter(s => s.status === 'abgeschlossen')
+
+    document.getElementById('badge-kommend').textContent = kommend.length
+    document.getElementById('badge-abgeschlossen').textContent = abgeschlossen.length
+
+    renderCol('kommend',      kommend)
+    renderCol('abgeschlossen', abgeschlossen)
+  }
+
+  function renderCol(status, games) {
+    const container = document.getElementById(`cards-${status}`)
+    container.innerHTML = ''
+
+    if (games.length === 0) {
+      container.innerHTML = `<div class="col-empty">Keine Spiele</div>`
+      return
+    }
+
+    games.forEach(spiel => {
+      const globalIdx = spiele.indexOf(spiel)
+      container.appendChild(buildCard(spiel, globalIdx))
+    })
+  }
+
+  function buildCard(spiel, idx) {
+    const isAb = spiel.status === 'abgeschlossen'
+    const isSpvggHeim = (spiel.heim || '').includes('Höhenkirchen')
+    const isSpvggGast = (spiel.gast || '').includes('Höhenkirchen')
+
+    let scoreClass = ''
+    if (isAb && spiel.heimTor != null && spiel.gastTor != null) {
+      const spvTore = isSpvggHeim ? spiel.heimTor : spiel.gastTor
+      const gegTore = isSpvggHeim ? spiel.gastTor : spiel.heimTor
+      scoreClass = spvTore > gegTore ? 'win' : spvTore === gegTore ? 'draw' : 'loss'
+    }
+
+    const datumStr = spiel.datum + (spiel.uhrzeit ? ' · ' + spiel.uhrzeit + ' Uhr' : '')
+    const metaParts = []
+    if (spiel.mannschaft) metaParts.push(spiel.mannschaft)
+    if (spiel.ort) metaParts.push('📍 ' + spiel.ort)
+
+    const div = document.createElement('div')
+    div.className = 'kcard'
+    div.draggable = true
+    div.dataset.idx = idx
+
+    div.innerHTML = `
+      <div class="kcard-top">
+        <span class="kcard-liga">${esc(spiel.liga)}</span>
+        <span class="kcard-datum">${esc(datumStr)}</span>
+      </div>
+      <div class="kcard-teams">
+        <span class="kcard-team${isSpvggHeim ? ' spvgg' : ''}">${esc(spiel.heim)}</span>
+        ${isAb
+          ? `<span class="kcard-score ${scoreClass}">${spiel.heimTor ?? '?'} : ${spiel.gastTor ?? '?'}</span>`
+          : `<span class="kcard-vs">vs</span>`
+        }
+        <span class="kcard-team away${isSpvggGast ? ' spvgg' : ''}">${esc(spiel.gast)}</span>
+      </div>
+      ${metaParts.length ? `<div class="kcard-meta">${esc(metaParts.join(' · '))}</div>` : ''}
+      <div class="kcard-actions">
+        <button class="kbtn" data-action="edit" data-idx="${idx}">✏ Bearbeiten</button>
+        ${isAb
+          ? `<button class="kbtn kbtn-back" data-action="back" data-idx="${idx}">← Kommend</button>`
+          : `<button class="kbtn kbtn-result" data-action="result" data-idx="${idx}">→ Ergebnis</button>`
+        }
+        <button class="kbtn kbtn-delete" data-action="delete" data-idx="${idx}">✕</button>
+      </div>
+    `
+
+    // Drag events
+    div.addEventListener('dragstart', e => {
+      dragSrcIdx = idx
+      div.classList.add('dragging')
+      e.dataTransfer.effectAllowed = 'move'
+    })
+    div.addEventListener('dragend', () => {
+      div.classList.remove('dragging')
+      document.querySelectorAll('.kanban-col').forEach(c => c.classList.remove('drag-over'))
+    })
+
+    return div
+  }
+
+  // ── DRAG-AND-DROP ────────────────────────────────────────
+  ['kommend', 'abgeschlossen'].forEach(status => {
+    const col = document.getElementById(`col-${status}`)
+    col.addEventListener('dragover', e => {
+      e.preventDefault()
+      e.dataTransfer.dropEffect = 'move'
+      col.classList.add('drag-over')
+    })
+    col.addEventListener('dragleave', e => {
+      if (!col.contains(e.relatedTarget)) col.classList.remove('drag-over')
+    })
+    col.addEventListener('drop', e => {
+      e.preventDefault()
+      col.classList.remove('drag-over')
+      if (dragSrcIdx === null) return
+      const src = spiele[dragSrcIdx]
+      if (!src) return
+
+      if (src.status === status) {
+        dragSrcIdx = null
+        return
+      }
+
+      if (status === 'abgeschlossen') {
+        // Need score — open score dialog
+        pendingMoveIdx = dragSrcIdx
+        openScoreDialog(dragSrcIdx)
+      } else {
+        // Move back to kommend — clear score
+        spiele[dragSrcIdx] = { ...src, status: 'kommend', heimTor: null, gastTor: null }
+        save()
+        render()
+      }
+      dragSrcIdx = null
+    })
+  })
+
+  // ── BUTTON ACTIONS (event delegation) ───────────────────
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('[data-action]')
+    if (!btn) return
+    const idx = parseInt(btn.dataset.idx)
+    const action = btn.dataset.action
+
+    if (action === 'edit')   openEditDialog(idx)
+    if (action === 'result') { pendingMoveIdx = idx; openScoreDialog(idx) }
+    if (action === 'back')   moveToKommend(idx)
+    if (action === 'delete') deleteSpiel(idx)
+  })
+
+  // ── MOVE ────────────────────────────────────────────────
+  function moveToKommend(idx) {
+    spiele[idx] = { ...spiele[idx], status: 'kommend', heimTor: null, gastTor: null }
+    save(); render()
+  }
+
+  // ── SCORE DIALOG ─────────────────────────────────────────
+  const dlgScore = document.getElementById('dlg-score')
+
+  function openScoreDialog(idx) {
+    const spiel = spiele[idx]
+    document.getElementById('score-game-info').textContent =
+      `${spiel.heim || ''} vs ${spiel.gast || ''}`
+    document.getElementById('score-heim').value = 0
+    document.getElementById('score-gast').value = 0
+    dlgScore.showModal()
+  }
+
+  document.getElementById('score-confirm').addEventListener('click', () => {
+    if (pendingMoveIdx === null) return
+    const heim = parseInt(document.getElementById('score-heim').value) || 0
+    const gast = parseInt(document.getElementById('score-gast').value) || 0
+    spiele[pendingMoveIdx] = { ...spiele[pendingMoveIdx], status: 'abgeschlossen', heimTor: heim, gastTor: gast }
+    pendingMoveIdx = null
+    dlgScore.close()
+    save(); render()
+  })
+
+  document.getElementById('score-cancel').addEventListener('click', () => {
+    pendingMoveIdx = null; dlgScore.close()
+  })
+  document.getElementById('score-close').addEventListener('click', () => {
+    pendingMoveIdx = null; dlgScore.close()
+  })
+
+  // ── EDIT / CREATE DIALOG ─────────────────────────────────
+  const dlgEdit   = document.getElementById('dlg-edit')
+  const formSpiel = document.getElementById('form-spiel')
+  let editIdx     = -1  // -1 = neues Spiel
+
+  function openEditDialog(idx) {
+    editIdx = idx
+    const spiel = idx >= 0 ? spiele[idx] : {}
+    document.getElementById('edit-title').textContent = idx >= 0 ? 'Spiel bearbeiten' : 'Neues Spiel'
+    formSpiel.datum.value      = spiel.datum      || ''
+    formSpiel.uhrzeit.value    = spiel.uhrzeit    || ''
+    formSpiel.mannschaft.value = spiel.mannschaft || ''
+    formSpiel.heim.value       = spiel.heim       || ''
+    formSpiel.gast.value       = spiel.gast       || ''
+    formSpiel.ort.value        = spiel.ort        || ''
+    formSpiel.liga.value       = spiel.liga       || ''
+    formSpiel.status.value     = spiel.status     || 'kommend'
+    formSpiel.heimTor.value    = spiel.heimTor    ?? ''
+    formSpiel.gastTor.value    = spiel.gastTor    ?? ''
+    toggleScoreFields()
+    dlgEdit.showModal()
+  }
+
+  function toggleScoreFields() {
+    const wrap = document.getElementById('score-fields-wrap')
+    wrap.style.display = formSpiel.status.value === 'abgeschlossen' ? '' : 'none'
+  }
+
+  formSpiel.status.addEventListener('change', toggleScoreFields)
+
+  document.getElementById('edit-save').addEventListener('click', () => {
+    if (!formSpiel.datum.value || !formSpiel.heim.value || !formSpiel.gast.value) {
+      formSpiel.reportValidity(); return
+    }
+    const isAb = formSpiel.status.value === 'abgeschlossen'
+    const data = {
+      datum:      formSpiel.datum.value.trim(),
+      uhrzeit:    formSpiel.uhrzeit.value.trim(),
+      mannschaft: formSpiel.mannschaft.value.trim(),
+      heim:       formSpiel.heim.value.trim(),
+      gast:       formSpiel.gast.value.trim(),
+      ort:        formSpiel.ort.value.trim(),
+      liga:       formSpiel.liga.value.trim(),
+      status:     formSpiel.status.value,
+      heimTor:    isAb && formSpiel.heimTor.value !== '' ? parseInt(formSpiel.heimTor.value) : null,
+      gastTor:    isAb && formSpiel.gastTor.value !== '' ? parseInt(formSpiel.gastTor.value) : null,
+    }
+    if (editIdx >= 0) spiele[editIdx] = data
+    else spiele.unshift(data)
+    dlgEdit.close()
+    save(); render()
+  })
+
+  document.getElementById('edit-cancel').addEventListener('click', () => dlgEdit.close())
+  document.getElementById('edit-close').addEventListener('click', () => dlgEdit.close())
+  document.getElementById('btn-new').addEventListener('click', () => openEditDialog(-1))
+
+  // ── DELETE ───────────────────────────────────────────────
+  function deleteSpiel(idx) {
+    const spiel = spiele[idx]
+    if (!confirm(`Spiel löschen?\n${spiel.datum} · ${spiel.heim} vs ${spiel.gast}`)) return
+    spiele.splice(idx, 1)
+    save(); render()
+  }
+
+  // ── SAVE ─────────────────────────────────────────────────
+  async function save() {
+    await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(spiele),
+    })
+    showToast()
+  }
+
+  function showToast() {
+    const t = document.getElementById('toast')
+    t.classList.add('show')
+    setTimeout(() => t.classList.remove('show'), 2000)
+  }
+
+  // ── INIT ─────────────────────────────────────────────────
+  render()
+</script>
+
+</body>
+</html>
