@@ -2,6 +2,9 @@
   publish = "dist"
   command = "npm run build"
 
+[functions]
+  included_files = ["src/content/**", "keystatic.config.ts"]
+
 [[headers]]
   for = "/*"
   [headers.values]
