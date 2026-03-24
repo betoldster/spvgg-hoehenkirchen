@@ -20,8 +20,8 @@ function formatDate(iso: string | null) {
   return d.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
-const featured = news.filter((n: any) => n.featured)
-const rest     = news.filter((n: any) => !n.featured)
+const topFeatured = news.find((n: any) => n.featured) ?? null
+const rest        = news.filter((n: any) => n !== topFeatured)
 ---
 
 <Base title="News & Berichte" description="Aktuelle Neuigkeiten, Spielberichte und Vereinsinformationen der SpVgg Höhenkirchen.">
@@ -37,9 +37,9 @@ const rest     = news.filter((n: any) => !n.featured)
   <section class="news-section">
     <div class="container">
 
-      {featured.length > 0 && (
+      {topFeatured && (
         <div class="featured-wrap">
-          {featured.map(n => (
+          {[topFeatured].map(n => (
             <a href={`/news/${n.slug}`} class="card-featured">
               <div class="card-img">
                 {n.titelbild

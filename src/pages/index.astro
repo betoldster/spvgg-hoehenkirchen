@@ -31,7 +31,7 @@ const newsSorted = allNews.sort((a: any, b: any) =>
   (b.datum ?? '').localeCompare(a.datum ?? '')
 )
 const featuredNews = newsSorted.find((n: any) => n.featured)
-const othersNews   = newsSorted.filter((n: any) => !n.featured).slice(0, 2)
+const othersNews   = newsSorted.filter((n: any) => n !== featuredNews).slice(0, 2)
 const news = [
   ...(featuredNews ? [featuredNews] : []),
   ...othersNews,

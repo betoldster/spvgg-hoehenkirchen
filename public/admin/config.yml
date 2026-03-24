@@ -23,7 +23,7 @@ collections:
     slug: "{{year}}-{{month}}-{{day}}-{{fields.titel}}"
     fields:
       - { label: "Titel", name: titel, widget: string }
-      - { label: "Datum", name: datum, widget: date, format: "YYYY-MM-DD" }
+      - { label: "Datum (YYYY-MM-DD)", name: datum, widget: string, required: false, hint: "Format: 2026-03-24" }
       - label: "Kategorie"
         name: kategorie
         widget: select
