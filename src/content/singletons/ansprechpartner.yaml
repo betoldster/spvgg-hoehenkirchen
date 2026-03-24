@@ -1,29 +1,33 @@
 personen:
-  - funktion: "Abteilungsleiter Fußball"
-    name: "Simon Hauser"
-    email: "dummy@"
+  - funktion: Abteilungsleiter Fußball
+    name: Simon Hauser
+    email: dummy@
     telefon: "017777777"
-  - funktion: "Jugendleiter"
-    name: "Andreas Moser"
-    email: "dummy@"
+  - funktion: Jugendleiter
+    name: Andreas Moser
+    email: dummy@
     telefon: "017777777"
-  - funktion: "Stv. Abteilungsleiter"
-    name: "Stanko Fatic"
-    email: "dummy@"
+  - funktion: Stv. Abteilungsleiter
+    name: Stanko Fatic
+    email: dummy@
     telefon: "017777777"
-  - funktion: "Stv. Jugendleiter"
-    name: "Sandor Ertl"
-    email: "dummy@"
+  - funktion: Stv. Jugendleiter
+    name: Sandor Ertl
+    email: dummy@
     telefon: "017777777"
-  - funktion: "Teambekleidung"
-    name: "Margit Reisenecker"
-    email: "dummy@"
+  - funktion: Teambekleidung
+    name: Margit Reisenecker
+    email: dummy@
     telefon: ""
-  - funktion: "Seniorenleiter"
-    name: "Stanko Fatic"
-    email: "dummy@"
+  - funktion: Seniorenleiter
+    name: Stanko Fatic
+    email: dummy@
     telefon: ""
-  - funktion: "Werbung / Sponsoring"
-    name: "Samet Zorlu"
-    email: "dummy@"
+  - funktion: Werbung / Sponsoring
+    name: Samet Zorlu
+    email: dummy@
     telefon: ""
+  - funktion: Webseite
+    name: Ben Diepold
+    email: b.diepold@fussball-hoehenkirchen.de
+    telefon: "01777777777"
