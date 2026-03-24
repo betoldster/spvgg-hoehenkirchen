@@ -6,7 +6,10 @@ foto: /images/teams/1-mannschaft/foto.jpeg
 trainer:
   - name: Dieter Bohlen
     email: dummy@
-    telefon: '017777777'
+    telefon: "017777777"
   - name: Hans Dampf
     email: dummy@
-    telefon: '017777777'
+    telefon: "017777777"
+  - name: SuperMan
+    email: Super@man.com
+    telefon: "012784623784"
