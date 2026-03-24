@@ -3,8 +3,14 @@ platzzeiten:
     tag: Mo - Fr
     uhrzeit: 15 - 22 Uhr
     platz: Kunstrasen
+    team: Test Mannschaft
+    zeit: 18 - 22 Uhr
+    ort: Kunstrasen
 hallenzeiten:
   - mannschaft: Test Mannschaft
     tag: Mo - Fr
     uhrzeit: 16 - 20 Uhr
     halle: Mehrzweckhalle
+    team: Test Mannschaft 2
+    zeit: 19 - 23 Uhr
+    ort: Mehrzweckhalle
