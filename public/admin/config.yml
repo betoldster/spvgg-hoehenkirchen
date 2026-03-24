@@ -162,6 +162,7 @@ collections:
             fields:
               - { label: "Jahr / Datum", name: jahr, widget: string }
               - { label: "Ereignis", name: ereignis, widget: string }
+              - { label: "Meilenstein", name: meilenstein, widget: boolean, default: false }
 
       - label: "Trainingszeiten"
         name: trainingszeiten
@@ -171,18 +172,18 @@ collections:
             name: platzzeiten
             widget: list
             fields:
-              - { label: "Mannschaft", name: mannschaft, widget: string }
+              - { label: "Mannschaft", name: team, widget: string }
               - { label: "Tag", name: tag, widget: string }
-              - { label: "Uhrzeit", name: uhrzeit, widget: string }
-              - { label: "Platz", name: platz, widget: string, required: false }
+              - { label: "Uhrzeit", name: zeit, widget: string }
+              - { label: "Ort / Platz", name: ort, widget: string, required: false }
           - label: "Hallenzeiten"
             name: hallenzeiten
             widget: list
             fields:
-              - { label: "Mannschaft", name: mannschaft, widget: string }
+              - { label: "Mannschaft", name: team, widget: string }
               - { label: "Tag", name: tag, widget: string }
-              - { label: "Uhrzeit", name: uhrzeit, widget: string }
-              - { label: "Halle", name: halle, widget: string, required: false }
+              - { label: "Uhrzeit", name: zeit, widget: string }
+              - { label: "Halle", name: ort, widget: string, required: false }
 
       - label: "Anfahrt"
         name: anfahrt
@@ -196,7 +197,7 @@ collections:
             widget: list
             fields:
               - { label: "Titel", name: titel, widget: string }
-              - { label: "Beschreibung", name: beschreibung, widget: text }
+              - { label: "Beschreibung", name: text, widget: text }
               - { label: "Icon", name: icon, widget: string, required: false }
 
       - label: "Mitgliedsbeiträge"
@@ -213,7 +214,7 @@ collections:
                 widget: list
                 fields:
                   - { label: "Bezeichnung", name: bezeichnung, widget: string }
-                  - { label: "Betrag", name: betrag, widget: string }
+                  - { label: "Betrag", name: preis, widget: string }
                   - { label: "Zeitraum", name: zeitraum, widget: string, required: false }
 
       - label: "Sponsoren"
