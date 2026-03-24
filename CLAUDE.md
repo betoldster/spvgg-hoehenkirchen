@@ -410,13 +410,14 @@ const data = await reader.singletons.spielplan.read()
 ```js
 import react from '@astrojs/react'
 import keystatic from '@keystatic/astro'
-import node from '@astrojs/node'
+import netlify from '@astrojs/netlify'
 export default defineConfig({
-  adapter: node({ mode: 'middleware' }),
+  adapter: netlify(),
   integrations: [react(), keystatic()],
 })
 // KEIN output: 'hybrid' — in Astro 6 entfernt
 // output: 'static' ist Default; einzelne Seiten können mit `export const prerender = false` auf SSR umschalten
+// Netlify-Adapter statt Node-Adapter für Netlify-Deployment
 ```
 
 **SSR für dynamische Routen (z.B. news/[slug].astro):**
@@ -424,7 +425,18 @@ export default defineConfig({
 export const prerender = false
 // getStaticPaths() ENTFERNEN — Keystatic-Reader liest Slug direkt aus Astro.params
 // Nötig wenn Inhalt zur Laufzeit (via /keystatic Admin) erstellt wird ohne Server-Neustart
-// Setzt @astrojs/node Adapter voraus
+```
+
+**Keystatic Storage-Modus (kritisch!):**
+```ts
+// keystatic.config.ts
+storage: import.meta.env.DEV
+  ? { kind: 'local' }
+  : { kind: 'github', repo: { owner: 'betoldster', name: 'spvgg-hoehenkirchen' } }
+// NICHT process.env.KEYSTATIC_GITHUB_CLIENT_ID — wird im Browser-Bundle nicht inlined (kein PUBLIC_ Prefix)
+// import.meta.env.DEV wird von Vite korrekt für Client UND Server eingebettet
+// Lokal: local mode (Filesystem-Reads/Writes)
+// Netlify: github mode (Lesen/Schreiben via GitHub API)
 ```
 
 **Redirect-Syntax in Astro:**
@@ -497,16 +509,60 @@ Nicht `import { redirect } from 'astro'` — das führt zu 500.
 - **Muss in Cloudflare Access ebenfalls geschützt werden**: Pfad `/admin/*` zur Policy hinzufügen
 
 ### GitHub Repository
-- Repo: `betoldster/spvgg-hoehenkirchen` (privat)
-- Remote: `git@github.com:betoldster/spvgg-hoehenkirchen.git`
+- Repo: `betoldster/spvgg-hoehenkirchen` (**public** — musste public gemacht werden, Netlify Free erlaubt nur 1 Contributor auf private Repos)
+- Remote: `https://github.com/betoldster/spvgg-hoehenkirchen.git`
+
+### Deployment
+
+**Live-URL:** https://spvgg-hoehenkirchen.netlify.app
+
+**Netlify CI/CD:** Aktiv — jeder Push auf `main` triggert automatisch einen Build auf Netlify.
+
+**Manueller Deploy (falls nötig):**
+```bash
+netlify build && netlify deploy --prod
+```
+NICHT `netlify deploy --prod --dir=dist` — das deployed nur statische Dateien, NICHT die SSR-Funktion!
+
+**Env-Variablen (in Netlify Dashboard gesetzt, Scope: All):**
+- `KEYSTATIC_GITHUB_CLIENT_ID` — GitHub OAuth App Client ID
+- `KEYSTATIC_GITHUB_CLIENT_SECRET` — GitHub OAuth App Client Secret
+- `KEYSTATIC_SECRET` — Keystatic Session Secret (zufälliger langer String)
+
+**GitHub OAuth App:** Registriert unter https://github.com/settings/developers
+- Callback URL: `https://spvgg-hoehenkirchen.netlify.app/api/keystatic/github/oauth/callback`
+
+**Wichtige Deployment-Details:**
+- `.npmrc` mit `legacy-peer-deps=true` nötig — `@keystatic/astro@5.0.6` deklariert nur Astro 2-5 als Peer Dep, funktioniert aber mit Astro 6
+- Build-Command in `netlify.toml`: `npm run build && cp -r src/content/. .netlify/v1/functions/ssr/src/content/` — Content-YAMLs müssen in die SSR-Funktion kopiert werden (für `createReader` in SSR-Pages)
+- `src/pages/api/keystatic/[...params].ts` — eigener API-Route-Override nötig, weil `@keystatic/astro` die Route als `origin: "external"` mit `distURL: []` injiziert (funktioniert im Netlify-Bundle nicht)
+
+### Aktueller Deployment-Status (Stand 24.03.2026)
+
+**Was funktioniert:**
+- ✅ Alle statischen Seiten live
+- ✅ SSR-Seiten (mannschaften/[slug], news/[slug]) — YAML-Dateien in SSR-Bundle
+- ✅ CI/CD: Push → Netlify baut automatisch
+- ✅ Keystatic Admin unter `/keystatic` erreichbar
+
+**Offen / Noch zu testen:**
+- ⏳ Keystatic GitHub-Login-Flow: War noch nicht vollständig getestet nach letztem Fix (commit `ffe22fe` — `import.meta.env.DEV` statt `process.env.*` in `keystatic.config.ts`)
+  - **Letztes bekanntes Problem:** Client und Server waren in verschiedenen Modi (Client = local, Server = github) → "Unable to load collection - Unexpected token 'N', 'Not Found' is not valid JSON"
+  - **Fix:** `keystatic.config.ts` nutzt jetzt `import.meta.env.DEV` — wird von Vite korrekt für Client UND Server inlined
+  - **Test:** `/keystatic` aufrufen → sollte GitHub-Login-Button zeigen → nach Login Inhalte editieren → GitHub-Commit erscheint im Repo
+
+**Kontaktdaten (Dummy-Stand):**
+- Alle E-Mails in YAML und Fallback-Werten auf `dummy@` gesetzt
+- Alle Telefonnummern auf `017777777` gesetzt
+- Muss vor Live-Gang ersetzt werden (am besten über Keystatic Admin nach erfolgreichem Login-Test)
 
 ### Nächste Schritte
 
-**Deployment:**
-1. **Netlify Deployment** — Repo mit Netlify verbinden, automatischer Deploy bei Push
-2. **Cloudflare Access** für `/keystatic` UND `/admin/*` einrichten (nach Deployment) — beide Pfade in die Access-Policy eintragen!
+**Sofort (beim nächsten Start):**
+1. **Keystatic Login testen** — `/keystatic` aufrufen, GitHub-Login-Flow durchführen, Änderung speichern, prüfen ob Commit im Repo erscheint
+2. **Echte Kontaktdaten eintragen** — via Keystatic Admin (Ansprechpartner, Impressum) nach erfolgreichem Login
 
-**Echte Inhalte eintragen:**
+**Inhalte eintragen:**
 3. Trainer-Fotos hochladen (via Keystatic → Mannschaft bearbeiten)
 4. Mannschaftsfotos hochladen
 5. Sponsor-Logos hochladen + echte Sponsoren eintragen
@@ -514,18 +570,22 @@ Nicht `import { redirect } from 'astro'` — das führt zu 500.
 7. BFV Widget-IDs eintragen: Für jede Mannschaft die ID aus dem BFV-Widget-Code in das Keystatic-Feld `BFV Widget ID` eintragen (Format: `016PM7QJH8000000VV0AG80NVUT1FLRU`)
 8. Spielplan aktuell halten über `/admin/spiele` (Kanban-Board)
 
+**Sicherheit:**
+9. **Cloudflare Access** für `/keystatic*` UND `/admin/*` einrichten — beide Pfade schützen!
+
 **Optional / Ausbau:**
-9. Saison-Feld im Spielplan-Kanban editierbar machen (aktuell nur in Keystatic)
-10. Spielplan-Spalten auf `/spielplan` sortierbar nach Datum machen
-11. Mehrere Mannschaften im Spielplan anzeigen (aktuell nur 1. Mannschaft im Slider auf Startseite)
+10. Saison-Feld im Spielplan-Kanban editierbar machen (aktuell nur in Keystatic)
+11. Spielplan-Spalten auf `/spielplan` sortierbar nach Datum machen
 
 ### Start-Prompt für weitere Änderungen
 ```
 Lies die CLAUDE.md — dort ist der komplette Kontext für die SpVgg Höhenkirchen Website.
-Die Website ist vollständig gebaut. Alle Inhalte sind über /keystatic editierbar.
-GitHub: betoldster/spvgg-hoehenkirchen (privat)
+Die Website ist live auf https://spvgg-hoehenkirchen.netlify.app
+GitHub: betoldster/spvgg-hoehenkirchen (public)
 Dev-Server: npm run dev → http://localhost:4321
-Admin: http://localhost:4321/keystatic
+Admin lokal: http://localhost:4321/keystatic
+Admin live: https://spvgg-hoehenkirchen.netlify.app/keystatic
+Keystatic-Login-Flow noch zu testen (letzter Fix: import.meta.env.DEV in keystatic.config.ts)
 ```
 
 ---
