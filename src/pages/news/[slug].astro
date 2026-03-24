@@ -2,17 +2,16 @@
 export const prerender = false
 
 import Base from '../../layouts/Base.astro'
-import { createReader } from '@keystatic/core/reader'
-import { DocumentRenderer } from '@keystatic/core/renderer'
-import keystaticConfig from '../../../keystatic.config'
+import { readEntry, readRichText } from '../../lib/content'
+import { marked } from 'marked'
 
 const { slug } = Astro.params
-const reader = createReader(process.cwd(), keystaticConfig)
-const article = await reader.collections.news.read(slug!)
+const article = readEntry('news', slug!)
 
 if (!article) return Astro.redirect('/news')
 
-const inhalt = await article.inhalt()
+const inhaltMd = readRichText('news', slug!, 'inhalt', article)
+const inhaltHtml = marked(inhaltMd)
 
 const katLabels: Record<string, string> = {
   spielbericht: 'Spielbericht',
@@ -57,7 +56,7 @@ function formatDate(iso: string | null) {
     <div class="container">
       <div class="article-grid">
         <article class="article-body prose">
-          <DocumentRenderer document={inhalt} />
+          <Fragment set:html={inhaltHtml} />
         </article>
         <aside class="article-sidebar">
           <div class="sidebar-card">

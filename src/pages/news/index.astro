@@ -1,15 +1,13 @@
 ---
 import Base from '../../layouts/Base.astro'
-import { createReader } from '@keystatic/core/reader'
-import keystaticConfig from '../../../keystatic.config'
+import { readCollection } from '../../lib/content'
 
-const reader = createReader(process.cwd(), keystaticConfig)
-const allNews = await reader.collections.news.all()
+const allNews = readCollection('news')
 
 // Sortiere nach Datum absteigend
 const news = allNews
-  .filter(n => n.entry.datum)
-  .sort((a, b) => (b.entry.datum ?? '').localeCompare(a.entry.datum ?? ''))
+  .filter((n: any) => n.datum)
+  .sort((a: any, b: any) => (b.datum ?? '').localeCompare(a.datum ?? ''))
 
 const katLabels: Record<string, string> = {
   spielbericht: 'Spielbericht',
@@ -23,8 +21,8 @@ function formatDate(iso: string | null) {
   return d.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
-const featured = news.filter(n => n.entry.featured)
-const rest     = news.filter(n => !n.entry.featured)
+const featured = news.filter((n: any) => n.featured)
+const rest     = news.filter((n: any) => !n.featured)
 ---
 
 <Base title="News & Berichte" description="Aktuelle Neuigkeiten, Spielberichte und Vereinsinformationen der SpVgg Höhenkirchen.">
@@ -45,19 +43,19 @@ const rest     = news.filter(n => !n.entry.featured)
           {featured.map(n => (
             <a href={`/news/${n.slug}`} class="card-featured">
               <div class="card-img">
-                {n.entry.titelbild
-                  ? <img src={n.entry.titelbild} alt={n.entry.titel} />
+                {n.titelbild
+                  ? <img src={n.titelbild} alt={n.titel} />
                   : <span class="card-img-icon">⚽</span>
                 }
                 <div class="card-img-bar"></div>
-                <span class="card-badge">{katLabels[n.entry.kategorie] ?? n.entry.kategorie}</span>
+                <span class="card-badge">{katLabels[n.kategorie] ?? n.kategorie}</span>
               </div>
               <div class="card-body">
                 <div class="card-meta">
-                  <time datetime={n.entry.datum ?? ''}>{formatDate(n.entry.datum)}</time>
-                  {n.entry.autor && <span>— {n.entry.autor}</span>}
+                  <time datetime={n.datum ?? ''}>{formatDate(n.datum)}</time>
+                  {n.autor && <span>— {n.autor}</span>}
                 </div>
-                <h2 class="card-title">{n.entry.titel}</h2>
+                <h2 class="card-title">{n.titel}</h2>
                 <span class="card-cta">Weiterlesen →</span>
               </div>
             </a>
@@ -71,11 +69,11 @@ const rest     = news.filter(n => !n.entry.featured)
             <div class="card-list-dot"></div>
             <div class="card-list-body">
               <div class="card-list-meta">
-                <span class="card-kat">{katLabels[n.entry.kategorie] ?? n.entry.kategorie}</span>
-                <time datetime={n.entry.datum ?? ''}>{formatDate(n.entry.datum)}</time>
+                <span class="card-kat">{katLabels[n.kategorie] ?? n.kategorie}</span>
+                <time datetime={n.datum ?? ''}>{formatDate(n.datum)}</time>
               </div>
-              <h3 class="card-list-title">{n.entry.titel}</h3>
-              {n.entry.autor && <span class="card-list-autor">{n.entry.autor}</span>}
+              <h3 class="card-list-title">{n.titel}</h3>
+              {n.autor && <span class="card-list-autor">{n.autor}</span>}
             </div>
             <span class="card-list-arrow">→</span>
           </a>

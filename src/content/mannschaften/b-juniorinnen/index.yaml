@@ -3,7 +3,4 @@ kategorie: "damen"
 liga: "JG 2008/09/10"
 spielplan_url: ""
 aktiv: true
-trainer:
-  - name: "
-    email: "
-    telefon: '"'
+trainer: []

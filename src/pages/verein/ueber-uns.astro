@@ -1,14 +1,12 @@
 ---
 import Base from '../../layouts/Base.astro'
 import VereinNav from '../../components/VereinNav.astro'
-import { createReader } from '@keystatic/core/reader'
-import keystaticConfig from '../../../keystatic.config'
+import { readSingleton } from '../../lib/content'
 
-const reader = createReader(process.cwd(), keystaticConfig)
-const chronik = await reader.singletons.chronik.read()
+const chronik = readSingleton('chronik')
 const eintraege = chronik?.eintraege ?? []
 
-const ueberUns = await reader.singletons.ueber_uns.read()
+const ueberUns = readSingleton('ueber-uns')
 const absaetze = ueberUns?.absaetze ?? []
 const stats    = ueberUns?.stats ?? []
 ---

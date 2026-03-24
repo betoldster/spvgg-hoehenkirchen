@@ -1,15 +1,13 @@
 ---
 import Base from '../layouts/Base.astro'
 import Obfuscate from '../components/Obfuscate.astro'
-import { createReader } from '@keystatic/core/reader'
-import keystaticConfig from '../../keystatic.config'
+import { readSingleton } from '../lib/content'
 
-const reader = createReader(process.cwd(), keystaticConfig)
-const data = await reader.singletons.sponsoren.read()
+const data = readSingleton('sponsoren')
 const sponsoren = data?.gruppen ?? []
 const pakete    = data?.pakete ?? []
 
-const ap = await reader.singletons.ansprechpartner.read()
+const ap = readSingleton('ansprechpartner')
 const personen = ap?.personen ?? []
 const zorlu     = personen.find(p => p.funktion.toLowerCase().includes('werbung') || p.funktion.toLowerCase().includes('sponsor'))
 const fanshop   = personen.find(p => p.funktion.toLowerCase().includes('bekleidung') || p.funktion.toLowerCase().includes('fanshop'))

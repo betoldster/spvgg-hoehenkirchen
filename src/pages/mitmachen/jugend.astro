@@ -2,27 +2,24 @@
 import Base from '../../layouts/Base.astro'
 import MitmachenNav from '../../components/MitmachenNav.astro'
 import Obfuscate from '../../components/Obfuscate.astro'
-import { createReader } from '@keystatic/core/reader'
-import keystaticConfig from '../../../keystatic.config'
+import { readCollection, readSingleton } from '../../lib/content'
 
-const reader = createReader(process.cwd(), keystaticConfig)
-
-// Teams aus Keystatic (junioren + damen)
-const allTeams = await reader.collections.mannschaften.all()
+// Teams (junioren + damen)
+const allTeams = readCollection('mannschaften')
 const teams = allTeams
-  .filter(t => t.entry.kategorie === 'junioren' || t.entry.kategorie === 'damen')
-  .map(t => ({ altersklasse: t.entry.name, jahrgang: t.entry.liga ?? '' }))
+  .filter((t: any) => t.kategorie === 'junioren' || t.kategorie === 'damen')
+  .map((t: any) => ({ altersklasse: t.name, jahrgang: t.liga ?? '' }))
 
 // Beitragspreise für Sidebar
-const beitraegeData = await reader.singletons.beitraege.read()
-const jugendGruppe   = beitraegeData?.gruppen.find(g => g.kategorie === 'Jugend')
+const beitraegeData = readSingleton('beitraege')
+const jugendGruppe   = beitraegeData?.gruppen.find((g: any) => g.kategorie === 'Jugend')
 const aufnahmeJugend = beitraegeData?.gruppen
-  .find(g => g.kategorie === 'Aufnahmegebühr')
-  ?.eintraege.find(e => e.bezeichnung.includes('Jugend'))
+  .find((g: any) => g.kategorie === 'Aufnahmegebühr')
+  ?.eintraege.find((e: any) => e.bezeichnung.includes('Jugend'))
 
-// Jugendleiter aus Keystatic
-const apData    = await reader.singletons.ansprechpartner.read()
-const jugendl   = apData?.personen.find(p => p.funktion === 'Jugendleiter')
+// Jugendleiter
+const apData    = readSingleton('ansprechpartner')
+const jugendl   = apData?.personen.find((p: any) => p.funktion === 'Jugendleiter')
 ---
 
 <Base title="Jugend anmelden" description="Dein Kind beim Fußball anmelden — SpVgg Höhenkirchen Jugendabteilung.">

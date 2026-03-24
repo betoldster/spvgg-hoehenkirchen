@@ -1,0 +1,272 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: public/images
+public_folder: /images
+
+locale: de
+
+# ───────────────────────────────────────────────
+# COLLECTIONS
+# ───────────────────────────────────────────────
+collections:
+
+  # News & Berichte
+  - name: news
+    label: "News & Berichte"
+    folder: src/content/news
+    create: true
+    path: "{{slug}}/index"
+    format: yaml
+    extension: yaml
+    slug: "{{year}}-{{month}}-{{day}}-{{fields.titel}}"
+    fields:
+      - { label: "Titel", name: titel, widget: string }
+      - { label: "Datum", name: datum, widget: date, format: "YYYY-MM-DD" }
+      - label: "Kategorie"
+        name: kategorie
+        widget: select
+        options:
+          - { label: "Vereinsnews", value: verein }
+          - { label: "Spielbericht", value: spielbericht }
+          - { label: "Jugend", value: jugend }
+        default: verein
+      - { label: "Autor", name: autor, widget: string, required: false }
+      - { label: "Teaser", name: teaser, widget: text, required: false }
+      - { label: "Titelbild", name: titelbild, widget: image, required: false, media_folder: "/public/images/news", public_folder: "/images/news" }
+      - { label: "Auf Startseite hervorheben", name: featured, widget: boolean, default: false }
+      - { label: "Inhalt", name: inhalt, widget: markdown, required: false }
+
+  # Mannschaften
+  - name: mannschaften
+    label: "Mannschaften"
+    folder: src/content/mannschaften
+    create: true
+    path: "{{slug}}/index"
+    format: yaml
+    extension: yaml
+    fields:
+      - { label: "Name", name: name, widget: string }
+      - label: "Kategorie"
+        name: kategorie
+        widget: select
+        options:
+          - { label: "Herren", value: herren }
+          - { label: "Senioren", value: senioren }
+          - { label: "Junioren", value: junioren }
+          - { label: "Damen", value: damen }
+        default: junioren
+      - { label: "Liga / Jahrgang", name: liga, widget: string, required: false }
+      - { label: "Aktiv anzeigen", name: aktiv, widget: boolean, default: true }
+      - { label: "Teamfoto", name: foto, widget: image, required: false, media_folder: "/public/images/teams", public_folder: "/images/teams" }
+      - { label: "Spielplan URL (bfv.de)", name: spielplan_url, widget: string, required: false }
+      - { label: "BFV Widget ID", name: bfv_widget_id, widget: string, required: false }
+      - label: "Trainer"
+        name: trainer
+        widget: list
+        required: false
+        fields:
+          - { label: "Name", name: name, widget: string }
+          - { label: "E-Mail", name: email, widget: string, required: false }
+          - { label: "Telefon", name: telefon, widget: string, required: false }
+          - { label: "Foto", name: foto, widget: image, required: false, media_folder: "/public/images/personen", public_folder: "/images/personen" }
+
+  # ───────────────────────────────────────────────
+  # SINGLETONS (als "files" collection)
+  # ───────────────────────────────────────────────
+  - name: einstellungen
+    label: "Einstellungen & Inhalte"
+    files:
+
+      - label: "Ansprechpartner"
+        name: ansprechpartner
+        file: src/content/singletons/ansprechpartner.yaml
+        fields:
+          - label: "Personen"
+            name: personen
+            widget: list
+            fields:
+              - { label: "Funktion", name: funktion, widget: string }
+              - { label: "Name", name: name, widget: string }
+              - { label: "E-Mail", name: email, widget: string, required: false }
+              - { label: "Telefon", name: telefon, widget: string, required: false }
+              - { label: "Foto", name: foto, widget: image, required: false, media_folder: "/public/images/personen", public_folder: "/images/personen" }
+
+      - label: "Spielplan"
+        name: spielplan
+        file: src/content/singletons/spielplan.yaml
+        fields:
+          - { label: "Saison", name: saison, widget: string, required: false }
+          - { label: "Spielplan URL (bfv.de)", name: fussball_de_url, widget: string, required: false }
+          - label: "Spiele"
+            name: spiele
+            widget: list
+            fields:
+              - { label: "Datum", name: datum, widget: string }
+              - { label: "Uhrzeit", name: uhrzeit, widget: string, required: false }
+              - { label: "Mannschaft", name: mannschaft, widget: string }
+              - { label: "Heim", name: heim, widget: string }
+              - { label: "Gast", name: gast, widget: string }
+              - { label: "Ort", name: ort, widget: string, required: false }
+              - { label: "Liga", name: liga, widget: string, required: false }
+              - label: "Status"
+                name: status
+                widget: select
+                options:
+                  - { label: "Kommend", value: kommend }
+                  - { label: "Abgeschlossen", value: abgeschlossen }
+                default: kommend
+              - { label: "Heim-Tore", name: heimTor, widget: number, required: false }
+              - { label: "Gast-Tore", name: gastTor, widget: number, required: false }
+
+      - label: "Startseite"
+        name: startseite
+        file: src/content/singletons/startseite.yaml
+        fields:
+          - label: "Ticker-Meldungen"
+            name: ticker
+            widget: list
+            fields:
+              - { label: "Text", name: text, widget: string }
+          - label: "Statistiken (Hero)"
+            name: stats
+            widget: list
+            fields:
+              - { label: "Zahl", name: zahl, widget: string }
+              - { label: "Label", name: label, widget: string }
+
+      - label: "Über uns & Chronik"
+        name: ueber_uns
+        file: src/content/singletons/ueber-uns.yaml
+        fields:
+          - label: "Textabsätze"
+            name: absaetze
+            widget: list
+            fields:
+              - { label: "Text", name: text, widget: text }
+          - label: "Kennzahlen"
+            name: stats
+            widget: list
+            fields:
+              - { label: "Zahl", name: zahl, widget: string }
+              - { label: "Label", name: label, widget: string }
+
+      - label: "Vereinschronik"
+        name: chronik
+        file: src/content/singletons/chronik.yaml
+        fields:
+          - label: "Chronik-Einträge"
+            name: eintraege
+            widget: list
+            fields:
+              - { label: "Jahr / Datum", name: jahr, widget: string }
+              - { label: "Ereignis", name: ereignis, widget: string }
+
+      - label: "Trainingszeiten"
+        name: trainingszeiten
+        file: src/content/singletons/trainingszeiten.yaml
+        fields:
+          - label: "Platzzeiten"
+            name: platzzeiten
+            widget: list
+            fields:
+              - { label: "Mannschaft", name: mannschaft, widget: string }
+              - { label: "Tag", name: tag, widget: string }
+              - { label: "Uhrzeit", name: uhrzeit, widget: string }
+              - { label: "Platz", name: platz, widget: string, required: false }
+          - label: "Hallenzeiten"
+            name: hallenzeiten
+            widget: list
+            fields:
+              - { label: "Mannschaft", name: mannschaft, widget: string }
+              - { label: "Tag", name: tag, widget: string }
+              - { label: "Uhrzeit", name: uhrzeit, widget: string }
+              - { label: "Halle", name: halle, widget: string, required: false }
+
+      - label: "Anfahrt"
+        name: anfahrt
+        file: src/content/singletons/anfahrt.yaml
+        fields:
+          - { label: "Name", name: name, widget: string }
+          - { label: "Straße", name: strasse, widget: string }
+          - { label: "Ort", name: ort, widget: string }
+          - label: "Anfahrtsoptionen"
+            name: optionen
+            widget: list
+            fields:
+              - { label: "Titel", name: titel, widget: string }
+              - { label: "Beschreibung", name: beschreibung, widget: text }
+              - { label: "Icon", name: icon, widget: string, required: false }
+
+      - label: "Mitgliedsbeiträge"
+        name: beitraege
+        file: src/content/singletons/beitraege.yaml
+        fields:
+          - label: "Gruppen"
+            name: gruppen
+            widget: list
+            fields:
+              - { label: "Kategorie", name: kategorie, widget: string }
+              - label: "Einträge"
+                name: eintraege
+                widget: list
+                fields:
+                  - { label: "Bezeichnung", name: bezeichnung, widget: string }
+                  - { label: "Betrag", name: betrag, widget: string }
+                  - { label: "Zeitraum", name: zeitraum, widget: string, required: false }
+
+      - label: "Sponsoren"
+        name: sponsoren
+        file: src/content/singletons/sponsoren.yaml
+        fields:
+          - label: "Sponsor-Gruppen"
+            name: gruppen
+            widget: list
+            fields:
+              - { label: "Name", name: name, widget: string }
+              - label: "Klasse"
+                name: klasse
+                widget: select
+                options:
+                  - { label: "Hauptsponsor", value: premium }
+                  - { label: "Gold", value: gold }
+                  - { label: "Partner", value: partner }
+              - label: "Firmen"
+                name: firmen
+                widget: list
+                fields:
+                  - { label: "Name", name: name, widget: string }
+                  - { label: "Branche", name: branche, widget: string, required: false }
+                  - { label: "Website", name: website, widget: string, required: false }
+                  - { label: "Logo", name: logo, widget: image, required: false, media_folder: "/public/images/sponsoren", public_folder: "/images/sponsoren" }
+          - label: "Sponsoring-Pakete"
+            name: pakete
+            widget: list
+            fields:
+              - { label: "Name", name: name, widget: string }
+              - label: "Klasse"
+                name: klasse
+                widget: select
+                options:
+                  - { label: "Hauptsponsor", value: premium }
+                  - { label: "Gold", value: gold }
+                  - { label: "Partner", value: partner }
+              - { label: "Preis", name: preis, widget: string }
+              - label: "Leistungen"
+                name: leistungen
+                widget: list
+                fields:
+                  - { label: "Punkt", name: punkt, widget: string }
+
+      - label: "Impressum"
+        name: impressum
+        file: src/content/singletons/impressum.yaml
+        fields:
+          - { label: "Vereinsregister-Nr.", name: vereinsregister_nr, widget: string, required: false }
+          - { label: "1. Vorstand", name: vorstand_name, widget: string }
+          - { label: "Abteilungsleiter Fußball", name: abteilungsleiter, widget: string }
+          - { label: "E-Mail", name: email, widget: string }
+          - { label: "Website", name: website, widget: string }
+          - { label: "Straße", name: strasse, widget: string }
+          - { label: "Ort", name: ort, widget: string }

@@ -3,11 +3,9 @@ export const prerender = false
 
 import Base from '../../layouts/Base.astro'
 import Obfuscate from '../../components/Obfuscate.astro'
-import { createReader } from '@keystatic/core/reader'
-import keystaticConfig from '../../../keystatic.config'
+import { readCollection, readEntry } from '../../lib/content'
 
 const { slug } = Astro.params
-const reader   = createReader(process.cwd(), keystaticConfig)
 const LOGO     = '/logo.png'
 
 const KATEGORIEN = ['herren', 'senioren', 'junioren', 'damen']
@@ -28,12 +26,12 @@ let team:  any   = null
 let trainer: any[] = []
 
 if (isKategorie) {
-  const all = await reader.collections.mannschaften.all()
+  const all = readCollection('mannschaften')
   teams = all
-    .filter(t => t.entry.aktiv && t.entry.kategorie === slug)
-    .sort((a, b) => a.entry.name.localeCompare(b.entry.name, 'de'))
+    .filter((t: any) => t.aktiv && t.kategorie === slug)
+    .sort((a: any, b: any) => a.name.localeCompare(b.name, 'de'))
 } else {
-  team = await reader.collections.mannschaften.read(slug!)
+  team = readEntry('mannschaften', slug!)
   if (!team) return Astro.redirect('/mannschaften', 302)
   trainer = ((team.trainer ?? []) as any[]).filter((t: any) => t.name?.trim()).slice(0, 4)
 }
@@ -86,12 +84,12 @@ const pageDesc  = isKategorie
                   </div>
                   <span class="badge-kat">{katLabel[slug!]}</span>
                 </div>
-                <div class="team-name">{t.entry.name}</div>
-                {t.entry.liga && <div class="team-liga">{t.entry.liga}</div>}
-                {((t.entry.trainer ?? []) as any[]).filter((tr: any) => tr.name?.trim()).length > 0 && (
+                <div class="team-name">{t.name}</div>
+                {t.liga && <div class="team-liga">{t.liga}</div>}
+                {((t.trainer ?? []) as any[]).filter((tr: any) => tr.name?.trim()).length > 0 && (
                   <div class="team-trainer-preview">
                     <span class="trainer-label">Trainer</span>
-                    {((t.entry.trainer as any[]).filter((tr: any) => tr.name?.trim())).map((tr: any) => (
+                    {((t.trainer as any[]).filter((tr: any) => tr.name?.trim())).map((tr: any) => (
                       <span class="trainer-name-small">{tr.name}</span>
                     ))}
                   </div>

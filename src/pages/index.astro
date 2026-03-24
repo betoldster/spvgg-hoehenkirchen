@@ -1,15 +1,12 @@
 ---
 import Base from '../layouts/Base.astro'
-import { createReader } from '@keystatic/core/reader'
-import keystaticConfig from '../../keystatic.config'
+import { readSingleton, readCollection } from '../lib/content'
 
 const LOGO = '/logo.png'
 
-const reader = createReader(process.cwd(), keystaticConfig)
-
 // Startseite-Daten (Ticker, Stats)
-const startseiteData = await reader.singletons.startseite.read()
-const tickerItems = (startseiteData?.ticker ?? []).map(t => t.text)
+const startseiteData = readSingleton('startseite')
+const tickerItems = (startseiteData?.ticker ?? []).map((t: any) => t.text)
 const stats = startseiteData?.stats ?? [
   { zahl: '18+', label: 'Mannschaften' },
   { zahl: '2000+', label: 'Mitglieder' },
@@ -17,9 +14,9 @@ const stats = startseiteData?.stats ?? [
 ]
 
 // Spielplan-Daten (letzte 3 Ergebnisse)
-const spielplanData = await reader.singletons.spielplan.read()
-const rawErgebnisse = (spielplanData?.spiele ?? []).filter(s => s.status === 'abgeschlossen')
-const results = rawErgebnisse.slice(0, 3).map(e => ({
+const spielplanData = readSingleton('spielplan')
+const rawErgebnisse = (spielplanData?.spiele ?? []).filter((s: any) => s.status === 'abgeschlossen')
+const results = rawErgebnisse.slice(0, 3).map((e: any) => ({
   home:        e.heim,
   away:        e.gast,
   scoreHome:   e.heimTor ?? 0,
@@ -28,31 +25,31 @@ const results = rawErgebnisse.slice(0, 3).map(e => ({
   competition: e.liga,
 }))
 
-// News aus Keystatic (featured zuerst, max. 3)
-const allNews = await reader.collections.news.all()
-const newsSorted = allNews.sort((a, b) =>
-  (b.entry.datum ?? '').localeCompare(a.entry.datum ?? '')
+// News (featured zuerst, max. 3)
+const allNews = readCollection('news')
+const newsSorted = allNews.sort((a: any, b: any) =>
+  (b.datum ?? '').localeCompare(a.datum ?? '')
 )
-const featured = newsSorted.find(n => n.entry.featured)
-const others   = newsSorted.filter(n => !n.entry.featured).slice(0, 2)
+const featuredNews = newsSorted.find((n: any) => n.featured)
+const othersNews   = newsSorted.filter((n: any) => !n.featured).slice(0, 2)
 const news = [
-  ...(featured ? [featured] : []),
-  ...others,
-].map(n => ({
+  ...(featuredNews ? [featuredNews] : []),
+  ...othersNews,
+].map((n: any) => ({
   slug:      n.slug,
-  title:     n.entry.titel,
-  date:      n.entry.datum
-    ? new Date(n.entry.datum).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
+  title:     n.titel,
+  date:      n.datum
+    ? new Date(n.datum).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
     : '',
-  kategorie:  n.entry.kategorie ?? 'verein',
-  teaser:     n.entry.teaser ?? '',
-  featured:   n.entry.featured ?? false,
-  titelbild:  n.entry.titelbild ?? null,
+  kategorie:  n.kategorie ?? 'verein',
+  teaser:     n.teaser ?? '',
+  featured:   n.featured ?? false,
+  titelbild:  n.titelbild ?? null,
 }))
 
 // Hauptsponsor (erste Gruppe mit klasse === 'premium', erste Firma)
-const sponsorenData = await reader.singletons.sponsoren.read()
-const hauptsponsorGruppe = (sponsorenData?.gruppen ?? []).find(g => g.klasse === 'premium')
+const sponsorenData = readSingleton('sponsoren')
+const hauptsponsorGruppe = (sponsorenData?.gruppen ?? []).find((g: any) => g.klasse === 'premium')
 const hauptsponsor = hauptsponsorGruppe?.firmen?.[0] ?? null
 
 // Kategorie-Karten (statisch — Labels ändern sich nie)

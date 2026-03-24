@@ -1,11 +1,9 @@
 ---
 import Base from '../../layouts/Base.astro'
-import { createReader } from '@keystatic/core/reader'
-import keystaticConfig from '../../../keystatic.config'
+import { readCollection } from '../../lib/content'
 
-const reader = createReader(process.cwd(), keystaticConfig)
-const allTeams = await reader.collections.mannschaften.all()
-const active = allTeams.filter(t => t.entry.aktiv)
+const allTeams = readCollection('mannschaften')
+const active = allTeams.filter((t: any) => t.aktiv)
 
 const kategorien = [
   {
@@ -13,28 +11,28 @@ const kategorien = [
     label: 'Herren',
     sub:   '1. & 2. Mannschaft',
     desc:  'Unsere Aktivenmannschaften im Seniorenfußball.',
-    teams: active.filter(t => t.entry.kategorie === 'herren'),
+    teams: active.filter((t: any) => t.kategorie === 'herren'),
   },
   {
     slug:  'senioren',
     label: 'Senioren',
     sub:   'Senioren A · B · C',
     desc:  'Fußball für erfahrene Spieler ab 32 Jahren.',
-    teams: active.filter(t => t.entry.kategorie === 'senioren'),
+    teams: active.filter((t: any) => t.kategorie === 'senioren'),
   },
   {
     slug:  'junioren',
     label: 'Junioren',
     sub:   'U5 bis U19',
     desc:  'Unsere Nachwuchsabteilung — von den Bambini bis zur A-Jugend.',
-    teams: active.filter(t => t.entry.kategorie === 'junioren'),
+    teams: active.filter((t: any) => t.kategorie === 'junioren'),
   },
   {
     slug:  'damen',
     label: 'Damen',
     sub:   'Damen & Juniorinnen',
     desc:  'Frauenfußball auf allen Altersebenen.',
-    teams: active.filter(t => t.entry.kategorie === 'damen'),
+    teams: active.filter((t: any) => t.kategorie === 'damen'),
   },
 ]
 
@@ -94,8 +92,8 @@ const LOGO = '/logo.png'
                   <div class="team-row-icon">
                     <img src={LOGO} alt="" width="32" height="32" />
                   </div>
-                  <div class="team-row-name">{t.entry.name}</div>
-                  <div class="team-row-liga">{t.entry.liga}</div>
+                  <div class="team-row-name">{t.name}</div>
+                  <div class="team-row-liga">{t.liga}</div>
                   <span class="team-row-link">Details →</span>
                 </a>
               )

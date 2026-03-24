@@ -3,7 +3,4 @@ kategorie: "junioren"
 liga: "Kreisliga"
 spielplan_url: ""
 aktiv: true
-trainer:
-  - name: "
-    email: "
-    telefon: '"'
+trainer: []

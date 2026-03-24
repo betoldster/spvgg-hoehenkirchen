@@ -1,11 +1,9 @@
 ---
 import Base from '../../layouts/Base.astro'
 import VereinNav from '../../components/VereinNav.astro'
-import { createReader } from '@keystatic/core/reader'
-import keystaticConfig from '../../../keystatic.config'
+import { readSingleton } from '../../lib/content'
 
-const reader = createReader(process.cwd(), keystaticConfig)
-const data = await reader.singletons.beitraege.read()
+const data = readSingleton('beitraege')
 const beitraege = data?.gruppen ?? []
 ---
 

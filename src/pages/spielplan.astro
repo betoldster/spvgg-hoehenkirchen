@@ -1,10 +1,8 @@
 ---
 import Base from '../layouts/Base.astro'
-import { createReader } from '@keystatic/core/reader'
-import keystaticConfig from '../../keystatic.config'
+import { readSingleton } from '../lib/content'
 
-const reader = createReader(process.cwd(), keystaticConfig)
-const data = await reader.singletons.spielplan.read()
+const data = readSingleton('spielplan')
 const alleSpiele    = data?.spiele ?? []
 const naechsteSpiele = alleSpiele.filter(s => s.status === 'kommend')
 const ergebnisse     = alleSpiele.filter(s => s.status === 'abgeschlossen')

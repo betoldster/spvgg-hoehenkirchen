@@ -3,7 +3,4 @@ kategorie: "damen"
 liga: "A-Klasse"
 spielplan_url: ""
 aktiv: true
-trainer:
-  - name: "
-    email: "
-    telefon: '"'
+trainer: []
