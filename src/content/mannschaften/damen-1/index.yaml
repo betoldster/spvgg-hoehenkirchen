@@ -1,6 +1,6 @@
-name: "Damen 1. Mannschaft"
-kategorie: "damen"
-liga: "A-Klasse"
-spielplan_url: ""
+name: "1. Mannschaft Damen "
+kategorie: damen
+liga: A-Klasse
 aktiv: true
+spielplan_url: ""
 trainer: []

@@ -1,74 +1,10 @@
 platzzeiten:
-  - team: 1. Mannschaft
-    tag: Di + Do
-    zeit: 19:30 – 21:00 Uhr
-    ort: Di - Hauptplatz / Do - Kunstrasen
-  - team: 2. Mannschaft
-    tag: Mo + Mi
-    zeit: 19:00 – 20:30 Uhr
-    ort: Nebenplatz
-  - team: Senioren A/B/C
-    tag: Do
-    zeit: 18:00 – 19:30 Uhr
-    ort: Nebenplatz
-  - team: U19
-    tag: Di + Fr
-    zeit: 17:30 – 19:00 Uhr
-    ort: Hauptplatz
-  - team: U17
-    tag: Mo + Mi
-    zeit: 17:00 – 18:30 Uhr
-    ort: Hauptplatz
-  - team: U15
-    tag: Di + Do
-    zeit: 16:30 – 18:00 Uhr
-    ort: Nebenplatz
-  - team: U14 / U13
-    tag: Mo + Mi
-    zeit: 16:00 – 17:30 Uhr
-    ort: Nebenplatz
-  - team: U12 / U11
-    tag: Di + Do
-    zeit: 15:30 – 17:00 Uhr
-    ort: Sportgelände
-  - team: U10 / U9
-    tag: Mi + Sa
-    zeit: 10:00 – 11:30 Uhr
-    ort: Sportgelände
-  - team: U8 / U7 / U6 / U5
-    tag: Sa
-    zeit: 10:00 – 11:00 Uhr
-    ort: Sportgelände
-  - team: Damen
-    tag: Di + Do
-    zeit: 19:00 – 20:30 Uhr
-    ort: Nebenplatz
+  - mannschaft: Test Mannschaft
+    tag: Mo - Fr
+    uhrzeit: 15 - 22 Uhr
+    platz: Kunstrasen
 hallenzeiten:
-  - team: 1. & 2. Mannschaft
-    tag: Di
-    zeit: 20:00 – 21:30 Uhr
-    ort: Sporthalle GS
-  - team: Senioren
-    tag: Do
-    zeit: 19:00 – 20:30 Uhr
-    ort: Sporthalle GS
-  - team: U19 / U17
-    tag: Mo
-    zeit: 19:00 – 20:30 Uhr
-    ort: Sporthalle MS
-  - team: U15 / U14 / U13
-    tag: Mi
-    zeit: 17:30 – 19:00 Uhr
-    ort: Sporthalle GS
-  - team: U12 / U11
-    tag: Do
-    zeit: 16:00 – 17:30 Uhr
-    ort: Sporthalle GS
-  - team: U10 / U9 / U8
-    tag: Fr
-    zeit: 16:00 – 17:30 Uhr
-    ort: Sporthalle MS
-  - team: Damen
-    tag: Mo
-    zeit: 19:30 – 21:00 Uhr
-    ort: Sporthalle MS
+  - mannschaft: Test Mannschaft
+    tag: Mo - Fr
+    uhrzeit: 16 - 20 Uhr
+    halle: Mehrzweckhalle

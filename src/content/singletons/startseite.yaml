@@ -1,13 +1,9 @@
 ticker:
-  - text: "3:1-Sieg gegen TSV Ottobrunn ⚽"
-  - text: Frühjahrsturnier der Jugend am 5. April
-  - text: Generalversammlung am 28. März, 19:30 Uhr
-  - text: Neues Trainingskonzept für U-Teams ab April
-  - text: "Platzpflege: Trainingsgelände bis 25. März gesperrt"
+  - text: Die Website läuft! HAMMER
 stats:
-  - zahl: "18+"
+  - zahl: 18+
     label: Mannschaften
-  - zahl: "2000+"
+  - zahl: 2000+
     label: Mitglieder
   - zahl: "1945"
     label: Gegründet
