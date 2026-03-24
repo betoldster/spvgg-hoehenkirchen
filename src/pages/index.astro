@@ -55,9 +55,9 @@ const hauptsponsor = hauptsponsorGruppe?.firmen?.[0] ?? null
 // Kategorie-Karten (statisch — Labels ändern sich nie)
 const teamKategorien = [
   { label: 'Herren',   sub: '1. & 2. Mannschaft',    href: '/mannschaften/herren',   count: 2  },
+  { label: 'Damen',    sub: 'Damen & Juniorinnen',     href: '/mannschaften/damen',    count: 3  },
   { label: 'Senioren', sub: 'Senioren A · B · C',     href: '/mannschaften/senioren', count: 3  },
   { label: 'Junioren', sub: 'U19 bis U5',              href: '/mannschaften/junioren', count: 20 },
-  { label: 'Damen',    sub: 'Damen & Juniorinnen',     href: '/mannschaften/damen',    count: 3  },
 ]
 
 function getResultBadge(r: typeof results[0]) {

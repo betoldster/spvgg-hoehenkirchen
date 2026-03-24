@@ -6,7 +6,6 @@ const allNews = readCollection('news')
 
 // Sortiere nach Datum absteigend
 const news = allNews
-  .filter((n: any) => n.datum)
   .sort((a: any, b: any) => (b.datum ?? '').localeCompare(a.datum ?? ''))
 
 const katLabels: Record<string, string> = {

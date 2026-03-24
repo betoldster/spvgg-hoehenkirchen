@@ -117,7 +117,13 @@ const beitraege = data?.gruppen ?? []
     display: inline-block;
   }
 
-  .beitrag-table { width: 100%; border-collapse: collapse; }
+  .beitrag-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .beitrag-table th:nth-child(1),
+  .beitrag-table td:nth-child(1) { width: 55%; }
+  .beitrag-table th:nth-child(2),
+  .beitrag-table td:nth-child(2) { width: 25%; }
+  .beitrag-table th:nth-child(3),
+  .beitrag-table td:nth-child(3) { width: 20%; }
   .beitrag-table th {
     font-family: 'Barlow Condensed', sans-serif;
     font-weight: 700;
@@ -134,6 +140,7 @@ const beitraege = data?.gruppen ?? []
     padding: 0.85rem 1rem;
     border-bottom: 1px solid var(--color-border);
     font-size: 0.96rem;
+    vertical-align: middle;
   }
   .beitrag-table tr { background: var(--color-surface); transition: background 0.15s; }
   .beitrag-table tr:hover { background: #1f1f1f; }

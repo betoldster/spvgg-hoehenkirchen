@@ -14,6 +14,13 @@ const kategorien = [
     teams: active.filter((t: any) => t.kategorie === 'herren'),
   },
   {
+    slug:  'damen',
+    label: 'Damen',
+    sub:   'Damen & Juniorinnen',
+    desc:  'Frauenfußball auf allen Altersebenen.',
+    teams: active.filter((t: any) => t.kategorie === 'damen'),
+  },
+  {
     slug:  'senioren',
     label: 'Senioren',
     sub:   'Senioren A · B · C',
@@ -26,13 +33,6 @@ const kategorien = [
     sub:   'U5 bis U19',
     desc:  'Unsere Nachwuchsabteilung — von den Bambini bis zur A-Jugend.',
     teams: active.filter((t: any) => t.kategorie === 'junioren'),
-  },
-  {
-    slug:  'damen',
-    label: 'Damen',
-    sub:   'Damen & Juniorinnen',
-    desc:  'Frauenfußball auf allen Altersebenen.',
-    teams: active.filter((t: any) => t.kategorie === 'damen'),
   },
 ]
 
