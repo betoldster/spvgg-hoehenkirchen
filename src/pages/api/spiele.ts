@@ -3,7 +3,8 @@ export const prerender = false
 import type { APIRoute } from 'astro'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { parse, stringify } from 'yaml'
+import yaml from 'yaml'
+const { parse, stringify } = yaml
 
 const YAML_PATH = join(process.cwd(), 'src/content/singletons/spielplan.yaml')
 const ALLOWED_STATUSES = ['kommend', 'abgeschlossen']
