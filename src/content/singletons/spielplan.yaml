@@ -1,86 +1,21 @@
-spiele:
-  - datum: 22.03.2025
-    uhrzeit: '15:00'
-    mannschaft: 1. Mannschaft
-    heim: SpVgg Höhenkirchen
-    gast: TSV Grünwald
-    ort: Sportanlage Höhenkirchen
-    liga: Kreisklasse
-    status: kommend
-  - datum: 29.03.2025
-    uhrzeit: '14:00'
-    mannschaft: 1. Mannschaft
-    heim: FC Egmating
-    gast: SpVgg Höhenkirchen
-    ort: Sportplatz Egmating
-    liga: Kreisklasse
-    status: kommend
-  - datum: 05.04.2025
-    uhrzeit: '16:00'
-    mannschaft: 1. Mannschaft
-    heim: SpVgg Höhenkirchen
-    gast: SV Perach
-    ort: Sportanlage Höhenkirchen
-    liga: Kreisklasse
-    status: kommend
-  - datum: 12.04.2025
-    uhrzeit: '15:30'
-    mannschaft: 1. Mannschaft
-    heim: TSV Brunnthal
-    gast: SpVgg Höhenkirchen
-    ort: Sportplatz Brunnthal
-    liga: Kreisklasse
-    status: kommend
-  - datum: 15.03.2025
-    uhrzeit: ''
-    mannschaft: 1. Mannschaft
-    heim: SpVgg Höhenkirchen
-    gast: TSV Ottobrunn
-    ort: ''
-    liga: Kreisklasse
-    status: abgeschlossen
-    heimTor: 3
-    gastTor: 1
-  - datum: 08.03.2025
-    uhrzeit: ''
-    mannschaft: 1. Mannschaft
-    heim: FC Deisenhofen II
-    gast: SpVgg Höhenkirchen
-    ort: ''
-    liga: Kreisklasse
-    status: abgeschlossen
-    heimTor: 0
-    gastTor: 2
-  - datum: 01.03.2025
-    uhrzeit: ''
-    mannschaft: 1. Mannschaft
-    heim: SpVgg Höhenkirchen
-    gast: SV Siegertsbrunn
-    ort: ''
-    liga: Kreisklasse
-    status: abgeschlossen
-    heimTor: 1
-    gastTor: 1
-  - datum: 22.02.2025
-    uhrzeit: ''
-    mannschaft: 1. Mannschaft
-    heim: SpVgg Höhenkirchen
-    gast: FC Faistenhaar
-    ort: ''
-    liga: Kreisklasse
-    status: abgeschlossen
-    heimTor: 4
-    gastTor: 0
-  - datum: 15.02.2025
-    uhrzeit: ''
-    mannschaft: 1. Mannschaft
-    heim: TSV Neubiberg
-    gast: SpVgg Höhenkirchen
-    ort: ''
-    liga: Kreisklasse
-    status: abgeschlossen
-    heimTor: 2
-    gastTor: 2
 saison: 2025/26
-fussball_de_url: >-
-  https://www.bfv.de/vereine/spvgg-hoehenkirchen/00ES8GNH9C00000DVV0AG08LVUPGND5I
+fussball_de_url: https://www.bfv.de/vereine/spvgg-hoehenkirchen/00ES8GNH9C00000DVV0AG08LVUPGND5I
+spiele:
+  - status: kommend
+    datum: 25.03.2026
+    uhrzeit: 12 Uhr
+    mannschaft: Test Mannschaft
+    heim: SpVgg Höhenkirchen
+    gast: FC Bayern München
+    ort: Kunstrasen
+    liga: Bundesliga
+  - heim: SpVgg Höhenkirchen
+    mannschaft: Test Mannschaft
+    datum: 23.03.2026
+    ort: Kunstrasen
+    status: abgeschlossen
+    uhrzeit: 18 Uhr
+    heimTor: 10
+    liga: 3. Bundesliga
+    gast: TSV 1860 München
+    gastTor: 0
