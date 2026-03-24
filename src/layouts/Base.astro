@@ -457,6 +457,12 @@ const currentPath = Astro.url.pathname
 </script>
 
 <script>
+  // Netlify Identity: invite/recovery tokens auf /admin/ weiterleiten
+  var hash = window.location.hash;
+  if (hash && (hash.indexOf('invite_token=') !== -1 || hash.indexOf('recovery_token=') !== -1 || hash.indexOf('confirmation_token=') !== -1)) {
+    window.location.replace('/admin/' + hash);
+  }
+
   if (window.netlifyIdentity) {
     window.netlifyIdentity.on("init", function(user) {
       if (!user) {
