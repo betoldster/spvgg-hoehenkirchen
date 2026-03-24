@@ -32,6 +32,7 @@ const currentPath = Astro.url.pathname
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <style is:global>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     a { color: inherit; text-decoration: none; }
@@ -248,7 +249,7 @@ const currentPath = Astro.url.pathname
       <ul class="footer-legal">
         <li><a href="/impressum">Impressum</a></li>
         <li><a href="/datenschutz">Datenschutz</a></li>
-        <li><a href="/keystatic">Admin</a></li>
+        <li><a href="/admin/">Admin</a></li>
       </ul>
     </div>
   </div>
@@ -453,6 +454,18 @@ const currentPath = Astro.url.pathname
   const burger = document.getElementById('navBurger')
   const mobile = document.getElementById('navMobile')
   burger?.addEventListener('click', () => mobile?.classList.toggle('open'))
+</script>
+
+<script>
+  if (window.netlifyIdentity) {
+    window.netlifyIdentity.on("init", function(user) {
+      if (!user) {
+        window.netlifyIdentity.on("login", function() {
+          document.location.href = "/admin/";
+        });
+      }
+    });
+  }
 </script>
 
 </body>
