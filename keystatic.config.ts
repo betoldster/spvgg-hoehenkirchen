@@ -1,12 +1,12 @@
 import { config, collection, singleton, fields } from '@keystatic/core'
 
 export default config({
-  storage: process.env.KEYSTATIC_GITHUB_CLIENT_ID
-    ? {
+  storage: import.meta.env.DEV
+    ? { kind: 'local' }
+    : {
         kind: 'github',
         repo: { owner: 'betoldster', name: 'spvgg-hoehenkirchen' },
-      }
-    : { kind: 'local' },
+      },
 
   collections: {
 
