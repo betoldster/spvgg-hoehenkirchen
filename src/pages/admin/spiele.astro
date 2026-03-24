@@ -3,7 +3,8 @@ export const prerender = false
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { parse } from 'yaml'
+import yaml from 'yaml'
+const { parse } = yaml
 
 const YAML_PATH = join(process.cwd(), 'src/content/singletons/spielplan.yaml')
 const raw = parse(readFileSync(YAML_PATH, 'utf-8'))
