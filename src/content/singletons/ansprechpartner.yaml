@@ -3,6 +3,7 @@ personen:
     name: Simon Hauser
     email: dummy@
     telefon: "017777777"
+    foto: /images/personen/simon_hauser.jpg
   - funktion: Jugendleiter
     name: Andreas Moser
     email: dummy@
@@ -15,6 +16,7 @@ personen:
     name: Sandor Ertl
     email: dummy@
     telefon: "017777777"
+    foto: /images/personen/sandor_ertl.jpg
   - funktion: Teambekleidung
     name: Margit Reisenecker
     email: dummy@
